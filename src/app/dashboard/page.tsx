@@ -30,6 +30,31 @@ export default function DashboardPage() {
   const [newDescription, setNewDescription] = useState('');
   const [newSubdomain, setNewSubdomain] = useState('');
   const [creating, setCreating] = useState(false);
+  const [exporting, setExporting] = useState<string | null>(null);
+  const [exportResult, setExportResult] = useState<{
+    repoUrl: string;
+    repoName: string;
+  } | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  async function handleExport(websiteId: string) {
+    setExporting(websiteId);
+    setExportError(null);
+    try {
+      const response = await fetch(`/api/websites/${websiteId}/export`, {
+        method: 'POST',
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Export failed');
+      }
+      setExportResult({ repoUrl: data.repoUrl, repoName: data.repoName });
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : 'Export failed');
+    } finally {
+      setExporting(null);
+    }
+  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -195,11 +220,21 @@ export default function DashboardPage() {
                       <span className="text-xs text-gray-400 dark:text-gray-500">
                         {website.subdomain}.aibuilder.dev
                       </span>
-                      <Link href={`/editor/${website.id}`}>
-                        <Button variant="outline" size="sm">
-                          Edit
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleExport(website.id)}
+                          disabled={exporting === website.id}
+                        >
+                          {exporting === website.id ? 'Exporting...' : 'Export to GitHub'}
                         </Button>
-                      </Link>
+                        <Link href={`/editor/${website.id}`}>
+                          <Button variant="outline" size="sm">
+                            Edit
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -251,6 +286,50 @@ export default function DashboardPage() {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* Export success modal */}
+      <Modal
+        isOpen={!!exportResult}
+        onClose={() => setExportResult(null)}
+        title="Export Successful"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Your website has been exported and pushed to GitHub.
+          </p>
+          <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+            <a
+              href={exportResult?.repoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+            >
+              {exportResult?.repoUrl}
+            </a>
+          </div>
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            Clone and deploy with:{' '}
+            <code className="rounded bg-gray-100 px-1.5 py-0.5 dark:bg-gray-700">
+              docker compose up --build
+            </code>
+          </p>
+          <div className="flex justify-end">
+            <Button onClick={() => setExportResult(null)}>Done</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Export error modal */}
+      <Modal isOpen={!!exportError} onClose={() => setExportError(null)} title="Export Failed">
+        <div className="space-y-4">
+          <p className="text-sm text-red-600 dark:text-red-400">{exportError}</p>
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => setExportError(null)}>
+              Close
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

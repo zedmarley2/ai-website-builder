@@ -148,3 +148,9 @@ export interface GenerateResponse {
     components: GeneratedComponent[];
   } | null;
 }
+
+export interface ExportResult {
+  message: string;
+  repoUrl: string;
+  repoName: string;
+}
