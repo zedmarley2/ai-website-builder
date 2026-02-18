@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { createWebsiteSchema } from "@/types";
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { createWebsiteSchema } from '@/types';
 
 /**
  * GET /api/websites
@@ -12,26 +12,23 @@ export async function GET() {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const websites = await prisma.website.findMany({
       where: { userId: session.user.id },
       include: {
         pages: {
-          orderBy: { order: "asc" },
+          orderBy: { order: 'asc' },
         },
       },
-      orderBy: { updatedAt: "desc" },
+      orderBy: { updatedAt: 'desc' },
     });
 
     return NextResponse.json(websites);
   } catch (error) {
-    console.error("Error fetching websites:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    console.error('Error fetching websites:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -44,7 +41,7 @@ export async function POST(request: Request) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -52,8 +49,8 @@ export async function POST(request: Request) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Validation failed", details: validation.error.format() },
-        { status: 400 },
+        { error: 'Validation failed', details: validation.error.format() },
+        { status: 400 }
       );
     }
 
@@ -65,10 +62,7 @@ export async function POST(request: Request) {
     });
 
     if (existingWebsite) {
-      return NextResponse.json(
-        { error: "Subdomain is already taken" },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: 'Subdomain is already taken' }, { status: 409 });
     }
 
     const website = await prisma.website.create({
@@ -85,10 +79,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(website, { status: 201 });
   } catch (error) {
-    console.error("Error creating website:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    console.error('Error creating website:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

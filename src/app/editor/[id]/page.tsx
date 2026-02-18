@@ -1,27 +1,27 @@
-"use client";
+'use client';
 
-import React, { useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { v4 as uuidv4 } from "uuid";
-import { Button } from "@/components/ui/button";
-import { Modal } from "@/components/ui/modal";
-import { ComponentPalette } from "@/components/editor/component-palette";
-import { Canvas } from "@/components/editor/canvas";
-import type { CanvasComponent } from "@/components/editor/canvas";
-import { PropertiesPanel } from "@/components/editor/properties-panel";
-import type { ComponentProperty } from "@/components/editor/properties-panel";
+import React, { useState, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { v4 as uuidv4 } from 'uuid';
+import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
+import { ComponentPalette } from '@/components/editor/component-palette';
+import { Canvas } from '@/components/editor/canvas';
+import type { CanvasComponent } from '@/components/editor/canvas';
+import { PropertiesPanel } from '@/components/editor/properties-panel';
+import type { ComponentProperty } from '@/components/editor/properties-panel';
 
 export default function EditorPage() {
   const params = useParams();
   const router = useRouter();
-  const websiteId = params.id as string;
+  const _websiteId = params.id as string;
 
   const [components, setComponents] = useState<CanvasComponent[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAiModal, setShowAiModal] = useState(false);
-  const [aiPrompt, setAiPrompt] = useState("");
-  const [currentPage, setCurrentPage] = useState("home");
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [currentPage, setCurrentPage] = useState('home');
   const [saving, setSaving] = useState(false);
 
   const selectedComponent = components.find((c) => c.id === selectedId) || null;
@@ -41,7 +41,7 @@ export default function EditorPage() {
     (type: string) => {
       handleAddComponent(type);
     },
-    [handleAddComponent],
+    [handleAddComponent]
   );
 
   const handleDeleteComponent = useCallback(() => {
@@ -55,14 +55,10 @@ export default function EditorPage() {
     (key: string, value: string) => {
       if (!selectedId) return;
       setComponents((prev) =>
-        prev.map((c) =>
-          c.id === selectedId
-            ? { ...c, props: { ...c.props, [key]: value } }
-            : c,
-        ),
+        prev.map((c) => (c.id === selectedId ? { ...c, props: { ...c.props, [key]: value } } : c))
       );
     },
-    [selectedId],
+    [selectedId]
   );
 
   async function handleSave() {
@@ -78,15 +74,15 @@ export default function EditorPage() {
 
     // Simulate AI generation by adding sample components
     const sampleComponents: CanvasComponent[] = [
-      { id: uuidv4(), type: "Header", name: "Header", props: {} },
-      { id: uuidv4(), type: "Hero", name: "Hero Section", props: {} },
-      { id: uuidv4(), type: "Features", name: "Features Grid", props: {} },
-      { id: uuidv4(), type: "CTA", name: "Call to Action", props: {} },
-      { id: uuidv4(), type: "Footer", name: "Footer", props: {} },
+      { id: uuidv4(), type: 'Header', name: 'Header', props: {} },
+      { id: uuidv4(), type: 'Hero', name: 'Hero Section', props: {} },
+      { id: uuidv4(), type: 'Features', name: 'Features Grid', props: {} },
+      { id: uuidv4(), type: 'CTA', name: 'Call to Action', props: {} },
+      { id: uuidv4(), type: 'Footer', name: 'Footer', props: {} },
     ];
 
     setComponents(sampleComponents);
-    setAiPrompt("");
+    setAiPrompt('');
     setShowAiModal(false);
   }
 
@@ -94,7 +90,7 @@ export default function EditorPage() {
     ? Object.entries(selectedComponent.props || {}).map(([key, value]) => ({
         key,
         label: key.charAt(0).toUpperCase() + key.slice(1),
-        type: "text" as const,
+        type: 'text' as const,
         value: String(value),
       }))
     : [];
@@ -106,7 +102,7 @@ export default function EditorPage() {
         <div className="flex items-center gap-4">
           {/* Back button */}
           <button
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push('/dashboard')}
             className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
             aria-label="Back to dashboard"
           >
@@ -143,11 +139,7 @@ export default function EditorPage() {
 
         <div className="flex items-center gap-2">
           {/* AI Generate button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowAiModal(true)}
-          >
+          <Button variant="outline" size="sm" onClick={() => setShowAiModal(true)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="mr-1.5 h-4 w-4"
@@ -166,13 +158,8 @@ export default function EditorPage() {
           </Button>
 
           {/* Save button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? "Saving..." : "Save"}
+          <Button variant="outline" size="sm" onClick={handleSave} disabled={saving}>
+            {saving ? 'Saving...' : 'Save'}
           </Button>
 
           {/* Preview button */}
@@ -194,9 +181,7 @@ export default function EditorPage() {
           </Button>
 
           {/* Publish button */}
-          <Button size="sm">
-            Publish
-          </Button>
+          <Button size="sm">Publish</Button>
         </div>
       </header>
 
@@ -239,11 +224,7 @@ export default function EditorPage() {
       </div>
 
       {/* AI Generate modal */}
-      <Modal
-        isOpen={showAiModal}
-        onClose={() => setShowAiModal(false)}
-        title="Generate with AI"
-      >
+      <Modal isOpen={showAiModal} onClose={() => setShowAiModal(false)} title="Generate with AI">
         <form onSubmit={handleAiGenerate}>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -259,15 +240,11 @@ export default function EditorPage() {
             />
           </div>
           <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-            Our AI will analyze your prompt and generate a full page layout with
-            appropriate components.
+            Our AI will analyze your prompt and generate a full page layout with appropriate
+            components.
           </p>
           <div className="mt-4 flex justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowAiModal(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => setShowAiModal(false)}>
               Cancel
             </Button>
             <Button type="submit">

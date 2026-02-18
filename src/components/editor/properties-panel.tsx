@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Input } from "@/components/ui/input";
+import React from 'react';
+import { Input } from '@/components/ui/input';
 
 interface ComponentProperty {
   key: string;
   label: string;
-  type: "text" | "textarea" | "color" | "select" | "number";
+  type: 'text' | 'textarea' | 'color' | 'select' | 'number';
   value: string;
   options?: { label: string; value: string }[];
 }
@@ -22,47 +22,71 @@ interface PropertiesPanelProps {
 
 function getDefaultProperties(type: string): ComponentProperty[] {
   const common: ComponentProperty[] = [
-    { key: "bgColor", label: "Background Color", type: "color", value: "#ffffff" },
-    { key: "padding", label: "Padding", type: "select", value: "md", options: [
-      { label: "Small", value: "sm" },
-      { label: "Medium", value: "md" },
-      { label: "Large", value: "lg" },
-    ]},
+    { key: 'bgColor', label: 'Background Color', type: 'color', value: '#ffffff' },
+    {
+      key: 'padding',
+      label: 'Padding',
+      type: 'select',
+      value: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
   ];
 
   switch (type) {
-    case "Header":
+    case 'Header':
+      return [{ key: 'logoText', label: 'Logo Text', type: 'text', value: 'Logo' }, ...common];
+    case 'Hero':
       return [
-        { key: "logoText", label: "Logo Text", type: "text", value: "Logo" },
+        { key: 'heading', label: 'Heading', type: 'text', value: 'Welcome to Your Website' },
+        {
+          key: 'subtitle',
+          label: 'Subtitle',
+          type: 'text',
+          value: 'A beautiful subtitle goes here',
+        },
+        { key: 'buttonText', label: 'Button Text', type: 'text', value: 'Get Started' },
         ...common,
       ];
-    case "Hero":
+    case 'Features':
       return [
-        { key: "heading", label: "Heading", type: "text", value: "Welcome to Your Website" },
-        { key: "subtitle", label: "Subtitle", type: "text", value: "A beautiful subtitle goes here" },
-        { key: "buttonText", label: "Button Text", type: "text", value: "Get Started" },
+        { key: 'heading', label: 'Section Title', type: 'text', value: 'Features' },
+        {
+          key: 'columns',
+          label: 'Columns',
+          type: 'select',
+          value: '3',
+          options: [
+            { label: '2 Columns', value: '2' },
+            { label: '3 Columns', value: '3' },
+            { label: '4 Columns', value: '4' },
+          ],
+        },
         ...common,
       ];
-    case "Features":
+    case 'CTA':
       return [
-        { key: "heading", label: "Section Title", type: "text", value: "Features" },
-        { key: "columns", label: "Columns", type: "select", value: "3", options: [
-          { label: "2 Columns", value: "2" },
-          { label: "3 Columns", value: "3" },
-          { label: "4 Columns", value: "4" },
-        ]},
+        { key: 'heading', label: 'Heading', type: 'text', value: 'Ready to get started?' },
+        {
+          key: 'subtitle',
+          label: 'Subtitle',
+          type: 'text',
+          value: 'Join thousands of users today',
+        },
+        { key: 'buttonText', label: 'Button Text', type: 'text', value: 'Sign Up Now' },
         ...common,
       ];
-    case "CTA":
+    case 'Text':
       return [
-        { key: "heading", label: "Heading", type: "text", value: "Ready to get started?" },
-        { key: "subtitle", label: "Subtitle", type: "text", value: "Join thousands of users today" },
-        { key: "buttonText", label: "Button Text", type: "text", value: "Sign Up Now" },
-        ...common,
-      ];
-    case "Text":
-      return [
-        { key: "content", label: "Content", type: "textarea", value: "Lorem ipsum dolor sit amet..." },
+        {
+          key: 'content',
+          label: 'Content',
+          type: 'textarea',
+          value: 'Lorem ipsum dolor sit amet...',
+        },
         ...common,
       ];
     default:
@@ -79,19 +103,13 @@ function PropertiesPanel({
   onDeleteComponent,
 }: PropertiesPanelProps) {
   const displayProperties =
-    properties.length > 0
-      ? properties
-      : componentType
-        ? getDefaultProperties(componentType)
-        : [];
+    properties.length > 0 ? properties : componentType ? getDefaultProperties(componentType) : [];
 
   if (!componentId) {
     return (
       <div className="flex h-full flex-col">
         <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-            Properties
-          </h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Properties</h3>
         </div>
         <div className="flex flex-1 items-center justify-center p-4">
           <p className="text-center text-sm text-gray-400 dark:text-gray-500">
@@ -106,9 +124,7 @@ function PropertiesPanel({
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-          Properties
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Properties</h3>
         {componentName && (
           <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
             {componentName} ({componentType})
@@ -121,14 +137,14 @@ function PropertiesPanel({
         <div className="space-y-4">
           {displayProperties.map((prop) => (
             <div key={prop.key}>
-              {prop.type === "text" && (
+              {prop.type === 'text' && (
                 <Input
                   label={prop.label}
                   value={prop.value}
                   onChange={(e) => onPropertyChange?.(prop.key, e.target.value)}
                 />
               )}
-              {prop.type === "textarea" && (
+              {prop.type === 'textarea' && (
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {prop.label}
@@ -141,7 +157,7 @@ function PropertiesPanel({
                   />
                 </div>
               )}
-              {prop.type === "color" && (
+              {prop.type === 'color' && (
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {prop.label}
@@ -153,13 +169,11 @@ function PropertiesPanel({
                       onChange={(e) => onPropertyChange?.(prop.key, e.target.value)}
                       className="h-8 w-8 cursor-pointer rounded border border-gray-300 dark:border-gray-600"
                     />
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {prop.value}
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">{prop.value}</span>
                   </div>
                 </div>
               )}
-              {prop.type === "select" && (
+              {prop.type === 'select' && (
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {prop.label}
@@ -177,7 +191,7 @@ function PropertiesPanel({
                   </select>
                 </div>
               )}
-              {prop.type === "number" && (
+              {prop.type === 'number' && (
                 <Input
                   type="number"
                   label={prop.label}

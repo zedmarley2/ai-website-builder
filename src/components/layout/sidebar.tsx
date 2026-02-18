@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 interface SidebarItem {
   id: string;
@@ -21,28 +21,23 @@ function Sidebar({ items, activeId, title }: SidebarProps) {
   return (
     <aside
       className={[
-        "flex h-full flex-col border-r border-gray-200 bg-white transition-all duration-300 dark:border-gray-800 dark:bg-gray-900",
-        collapsed ? "w-16" : "w-60",
-      ].join(" ")}
+        'flex h-full flex-col border-r border-gray-200 bg-white transition-all duration-300 dark:border-gray-800 dark:bg-gray-900',
+        collapsed ? 'w-16' : 'w-60',
+      ].join(' ')}
     >
       {/* Header */}
       <div className="flex h-12 items-center justify-between border-b border-gray-200 px-3 dark:border-gray-800">
         {!collapsed && title && (
-          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            {title}
-          </span>
+          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{title}</span>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className={[
-              "h-5 w-5 transition-transform",
-              collapsed ? "rotate-180" : "",
-            ].join(" ")}
+            className={['h-5 w-5 transition-transform', collapsed ? 'rotate-180' : ''].join(' ')}
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -63,12 +58,12 @@ function Sidebar({ items, activeId, title }: SidebarProps) {
               <button
                 onClick={item.onClick}
                 className={[
-                  "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   activeId === item.id
-                    ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white",
-                  collapsed ? "justify-center" : "",
-                ].join(" ")}
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white',
+                  collapsed ? 'justify-center' : '',
+                ].join(' ')}
                 title={collapsed ? item.label : undefined}
               >
                 <span className="flex-shrink-0">{item.icon}</span>

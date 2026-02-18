@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ModalProps {
   isOpen: boolean;
@@ -11,37 +11,37 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
-function Modal({ isOpen, onClose, title, children }: ModalProps) {
-  const [mounted, setMounted] = useState(false);
+const subscribe = () => () => {};
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+function Modal({ isOpen, onClose, title, children }: ModalProps) {
+  const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === 'Escape') onClose();
     }
     if (isOpen) {
-      window.addEventListener("keydown", handleKeyDown);
+      window.addEventListener('keydown', handleKeyDown);
     }
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
   if (!mounted) return null;
 
-  const portalTarget = document.getElementById("modal-root") || document.body;
+  const portalTarget = document.getElementById('modal-root') || document.body;
 
   return createPortal(
     <AnimatePresence>
@@ -61,15 +61,13 @@ function Modal({ isOpen, onClose, title, children }: ModalProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             className="relative z-10 mx-4 w-full max-w-lg rounded-xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-900"
           >
             {/* Header */}
             <div className="mb-4 flex items-center justify-between">
               {title && (
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  {title}
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
               )}
               <button
                 onClick={onClose}
@@ -96,7 +94,7 @@ function Modal({ isOpen, onClose, title, children }: ModalProps) {
         </div>
       )}
     </AnimatePresence>,
-    portalTarget,
+    portalTarget
   );
 }
 

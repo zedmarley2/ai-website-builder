@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { updateWebsiteSchema } from "@/types";
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { updateWebsiteSchema } from '@/types';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -16,7 +16,7 @@ export async function GET(request: Request, context: RouteContext) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await context.params;
@@ -25,10 +25,10 @@ export async function GET(request: Request, context: RouteContext) {
       where: { id },
       include: {
         pages: {
-          orderBy: { order: "asc" },
+          orderBy: { order: 'asc' },
           include: {
             components: {
-              orderBy: { order: "asc" },
+              orderBy: { order: 'asc' },
             },
           },
         },
@@ -36,23 +36,17 @@ export async function GET(request: Request, context: RouteContext) {
     });
 
     if (!website) {
-      return NextResponse.json(
-        { error: "Website not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Website not found' }, { status: 404 });
     }
 
     if (website.userId !== session.user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     return NextResponse.json(website);
   } catch (error) {
-    console.error("Error fetching website:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    console.error('Error fetching website:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -65,7 +59,7 @@ export async function PUT(request: Request, context: RouteContext) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await context.params;
@@ -76,14 +70,11 @@ export async function PUT(request: Request, context: RouteContext) {
     });
 
     if (!existingWebsite) {
-      return NextResponse.json(
-        { error: "Website not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Website not found' }, { status: 404 });
     }
 
     if (existingWebsite.userId !== session.user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -91,8 +82,8 @@ export async function PUT(request: Request, context: RouteContext) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Validation failed", details: validation.error.format() },
-        { status: 400 },
+        { error: 'Validation failed', details: validation.error.format() },
+        { status: 400 }
       );
     }
 
@@ -105,10 +96,7 @@ export async function PUT(request: Request, context: RouteContext) {
       });
 
       if (subdomainTaken) {
-        return NextResponse.json(
-          { error: "Subdomain is already taken" },
-          { status: 409 },
-        );
+        return NextResponse.json({ error: 'Subdomain is already taken' }, { status: 409 });
       }
     }
 
@@ -117,10 +105,10 @@ export async function PUT(request: Request, context: RouteContext) {
       data,
       include: {
         pages: {
-          orderBy: { order: "asc" },
+          orderBy: { order: 'asc' },
           include: {
             components: {
-              orderBy: { order: "asc" },
+              orderBy: { order: 'asc' },
             },
           },
         },
@@ -129,11 +117,8 @@ export async function PUT(request: Request, context: RouteContext) {
 
     return NextResponse.json(website);
   } catch (error) {
-    console.error("Error updating website:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    console.error('Error updating website:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -146,7 +131,7 @@ export async function DELETE(request: Request, context: RouteContext) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await context.params;
@@ -157,26 +142,20 @@ export async function DELETE(request: Request, context: RouteContext) {
     });
 
     if (!existingWebsite) {
-      return NextResponse.json(
-        { error: "Website not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Website not found' }, { status: 404 });
     }
 
     if (existingWebsite.userId !== session.user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     await prisma.website.delete({
       where: { id },
     });
 
-    return NextResponse.json({ message: "Website deleted successfully" });
+    return NextResponse.json({ message: 'Website deleted successfully' });
   } catch (error) {
-    console.error("Error deleting website:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    console.error('Error deleting website:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
 
 function Navbar() {
   const { data: session, status } = useSession();
@@ -53,10 +53,10 @@ function Navbar() {
 
         {/* Auth actions */}
         <div className="flex items-center gap-3">
-          {status === "loading" && (
+          {status === 'loading' && (
             <div className="h-8 w-20 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
           )}
-          {status === "unauthenticated" && (
+          {status === 'unauthenticated' && (
             <>
               <Link href="/login">
                 <Button variant="ghost" size="sm">
@@ -70,18 +70,18 @@ function Navbar() {
               </Link>
             </>
           )}
-          {status === "authenticated" && session?.user && (
+          {status === 'authenticated' && session?.user && (
             <div className="flex items-center gap-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-medium text-white">
                 {session.user.name?.charAt(0)?.toUpperCase() ||
                   session.user.email?.charAt(0)?.toUpperCase() ||
-                  "U"}
+                  'U'}
               </div>
               <span className="hidden text-sm font-medium text-gray-700 dark:text-gray-300 sm:block">
                 {session.user.name || session.user.email}
               </span>
               <button
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={() => signOut({ callbackUrl: '/' })}
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
               >
                 Sign Out

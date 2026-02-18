@@ -1,34 +1,29 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from '@playwright/test';
 
 test.describe('Home Page', () => {
   test('page loads with correct title', async ({ page }) => {
-    await page.goto('/')
-    await expect(page).toHaveTitle(/Create Next App/)
-  })
+    await page.goto('/');
+    await expect(page).toHaveTitle(/AI Website Builder/);
+  });
 
   test('hero section is visible', async ({ page }) => {
-    await page.goto('/')
-    const heading = page.locator('h1')
-    await expect(heading).toBeVisible()
-    await expect(heading).toContainText('To get started')
-  })
+    await page.goto('/');
+    const heading = page.locator('h1');
+    await expect(heading).toBeVisible();
+    await expect(heading).toContainText('Build Websites');
+  });
 
   test('CTA buttons are present', async ({ page }) => {
-    await page.goto('/')
-    const deployLink = page.locator('a', { hasText: 'Deploy Now' })
-    const docsLink = page.locator('a', { hasText: 'Documentation' })
-    await expect(deployLink).toBeVisible()
-    await expect(docsLink).toBeVisible()
-  })
+    await page.goto('/');
+    const getStartedLink = page.locator('a', { hasText: 'Get Started' });
+    await expect(getStartedLink).toBeVisible();
+  });
 
-  test('navigation links work', async ({ page }) => {
-    await page.goto('/')
-    const templatesLink = page.locator('a', { hasText: 'Templates' })
-    await expect(templatesLink).toBeVisible()
-    await expect(templatesLink).toHaveAttribute('href', /vercel\.com\/templates/)
-
-    const learningLink = page.locator('a', { hasText: 'Learning' })
-    await expect(learningLink).toBeVisible()
-    await expect(learningLink).toHaveAttribute('href', /nextjs\.org\/learn/)
-  })
-})
+  test('features section is visible', async ({ page }) => {
+    await page.goto('/');
+    const featuresHeading = page.locator('h2', {
+      hasText: 'Everything You Need',
+    });
+    await expect(featuresHeading).toBeVisible();
+  });
+});

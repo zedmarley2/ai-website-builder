@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 import {
   generateRequestSchema,
   ComponentType,
   type GenerateResponse,
   type GeneratedComponent,
-} from "@/types";
+} from '@/types';
 
 /**
  * POST /api/generate
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -28,8 +28,8 @@ export async function POST(request: Request) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Validation failed", details: validation.error.format() },
-        { status: 400 },
+        { error: 'Validation failed', details: validation.error.format() },
+        { status: 400 }
       );
     }
 
@@ -41,14 +41,11 @@ export async function POST(request: Request) {
     });
 
     if (!website) {
-      return NextResponse.json(
-        { error: "Website not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Website not found' }, { status: 404 });
     }
 
     if (website.userId !== session.user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Generate page content (currently stubbed)
@@ -56,17 +53,14 @@ export async function POST(request: Request) {
 
     const response: GenerateResponse = {
       success: true,
-      message: "Page generated successfully",
+      message: 'Page generated successfully',
       data: generatedPage,
     };
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Error generating content:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    console.error('Error generating content:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -97,119 +91,115 @@ export async function POST(request: Request) {
  * ```
  */
 async function generatePageFromPrompt(
-  prompt: string,
+  prompt: string
 ): Promise<{ pageName: string; slug: string; components: GeneratedComponent[] }> {
   // Derive a simple page name and slug from the prompt
   const words = prompt.trim().split(/\s+/).slice(0, 4);
   const pageName =
-    words.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ") +
-    " Page";
-  const slug = words.map((w) => w.toLowerCase()).join("-") + "-page";
+    words.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') + ' Page';
+  const slug = words.map((w) => w.toLowerCase()).join('-') + '-page';
 
   // Return a realistic mock page structure
   const components: GeneratedComponent[] = [
     {
       type: ComponentType.HEADER,
-      name: "Site Header",
+      name: 'Site Header',
       props: {
-        logo: "My Website",
+        logo: 'My Website',
         navItems: [
-          { label: "Home", href: "/" },
-          { label: "About", href: "/about" },
-          { label: "Contact", href: "/contact" },
+          { label: 'Home', href: '/' },
+          { label: 'About', href: '/about' },
+          { label: 'Contact', href: '/contact' },
         ],
       },
       styles: {
-        backgroundColor: "#ffffff",
-        padding: "1rem 2rem",
-        borderBottom: "1px solid #e5e7eb",
+        backgroundColor: '#ffffff',
+        padding: '1rem 2rem',
+        borderBottom: '1px solid #e5e7eb',
       },
       order: 0,
     },
     {
       type: ComponentType.HERO,
-      name: "Hero Section",
+      name: 'Hero Section',
       props: {
         title: `Welcome to Your New Website`,
         subtitle: `Generated from prompt: "${prompt}"`,
-        ctaText: "Get Started",
-        ctaLink: "#features",
+        ctaText: 'Get Started',
+        ctaLink: '#features',
         backgroundImage: null,
       },
       styles: {
-        backgroundColor: "#1e40af",
-        color: "#ffffff",
-        padding: "6rem 2rem",
-        textAlign: "center",
+        backgroundColor: '#1e40af',
+        color: '#ffffff',
+        padding: '6rem 2rem',
+        textAlign: 'center',
       },
       order: 1,
     },
     {
       type: ComponentType.FEATURES,
-      name: "Features Section",
+      name: 'Features Section',
       props: {
-        heading: "What We Offer",
+        heading: 'What We Offer',
         features: [
           {
-            title: "Fast Performance",
-            description:
-              "Lightning-fast load times that keep your visitors engaged.",
-            icon: "zap",
+            title: 'Fast Performance',
+            description: 'Lightning-fast load times that keep your visitors engaged.',
+            icon: 'zap',
           },
           {
-            title: "Modern Design",
-            description:
-              "Clean, contemporary aesthetics that make an impression.",
-            icon: "palette",
+            title: 'Modern Design',
+            description: 'Clean, contemporary aesthetics that make an impression.',
+            icon: 'palette',
           },
           {
-            title: "Fully Responsive",
-            description:
-              "Looks great on every device, from mobile to desktop.",
-            icon: "smartphone",
+            title: 'Fully Responsive',
+            description: 'Looks great on every device, from mobile to desktop.',
+            icon: 'smartphone',
           },
         ],
       },
       styles: {
-        padding: "4rem 2rem",
-        backgroundColor: "#f9fafb",
+        padding: '4rem 2rem',
+        backgroundColor: '#f9fafb',
       },
       order: 2,
     },
     {
       type: ComponentType.CTA,
-      name: "Call to Action",
+      name: 'Call to Action',
       props: {
-        heading: "Ready to Get Started?",
+        heading: 'Ready to Get Started?',
         description:
-          "Join thousands of satisfied customers and transform your online presence today.",
-        buttonText: "Sign Up Now",
-        buttonLink: "/signup",
+          'Join thousands of satisfied customers and transform your online presence today.',
+        buttonText: 'Sign Up Now',
+        buttonLink: '/signup',
       },
       styles: {
-        padding: "4rem 2rem",
-        backgroundColor: "#1e40af",
-        color: "#ffffff",
-        textAlign: "center",
+        padding: '4rem 2rem',
+        backgroundColor: '#1e40af',
+        color: '#ffffff',
+        textAlign: 'center',
       },
       order: 3,
     },
     {
       type: ComponentType.FOOTER,
-      name: "Site Footer",
+      name: 'Site Footer',
       props: {
         copyright: `© ${new Date().getFullYear()} My Website. All rights reserved.`,
         links: [
-          { label: "Privacy Policy", href: "/privacy" },
-          { label: "Terms of Service", href: "/terms" },
-          { label: "Contact", href: "/contact" },
+          { label: 'Privacy Policy', href: '/privacy' },
+          { label: 'Terms of Service', href: '/terms' },
+          { label: 'Contact', href: '/contact' },
         ],
       },
       styles: {
-        backgroundColor: "#111827",
-        color: "#9ca3af",
-        padding: "2rem",
-        textAlign: "center",
+        backgroundColor: '#111827',
+        color: '#9ca3af',
+        padding: '2rem',
+        textAlign: 'center',
       },
       order: 4,
     },

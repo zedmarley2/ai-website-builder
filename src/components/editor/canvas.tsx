@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CanvasComponent {
   id: string;
@@ -19,7 +19,7 @@ interface CanvasProps {
 
 function ComponentPreview({ component }: { component: CanvasComponent }) {
   switch (component.type) {
-    case "Header":
+    case 'Header':
       return (
         <div className="flex items-center justify-between bg-white px-6 py-4 dark:bg-gray-800">
           <span className="text-lg font-bold text-gray-900 dark:text-white">Logo</span>
@@ -30,7 +30,7 @@ function ComponentPreview({ component }: { component: CanvasComponent }) {
           </div>
         </div>
       );
-    case "Hero":
+    case 'Hero':
       return (
         <div className="bg-gradient-to-br from-blue-600 to-purple-700 px-8 py-16 text-center text-white">
           <h2 className="text-3xl font-bold">Welcome to Your Website</h2>
@@ -42,10 +42,12 @@ function ComponentPreview({ component }: { component: CanvasComponent }) {
           </div>
         </div>
       );
-    case "Features":
+    case 'Features':
       return (
         <div className="bg-gray-50 px-8 py-12 dark:bg-gray-800/50">
-          <h3 className="mb-6 text-center text-xl font-bold text-gray-900 dark:text-white">Features</h3>
+          <h3 className="mb-6 text-center text-xl font-bold text-gray-900 dark:text-white">
+            Features
+          </h3>
           <div className="grid grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
@@ -57,7 +59,7 @@ function ComponentPreview({ component }: { component: CanvasComponent }) {
           </div>
         </div>
       );
-    case "CTA":
+    case 'CTA':
       return (
         <div className="bg-blue-600 px-8 py-10 text-center text-white">
           <h3 className="text-xl font-bold">Ready to get started?</h3>
@@ -67,7 +69,7 @@ function ComponentPreview({ component }: { component: CanvasComponent }) {
           </span>
         </div>
       );
-    case "Text":
+    case 'Text':
       return (
         <div className="px-8 py-6">
           <p className="text-gray-600 dark:text-gray-400">
@@ -76,7 +78,7 @@ function ComponentPreview({ component }: { component: CanvasComponent }) {
           </p>
         </div>
       );
-    case "Image":
+    case 'Image':
       return (
         <div className="flex items-center justify-center bg-gray-100 px-8 py-12 dark:bg-gray-800">
           <div className="flex h-32 w-full max-w-md items-center justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
@@ -84,21 +86,25 @@ function ComponentPreview({ component }: { component: CanvasComponent }) {
           </div>
         </div>
       );
-    case "Testimonials":
+    case 'Testimonials':
       return (
         <div className="bg-white px-8 py-10 dark:bg-gray-900">
-          <h3 className="mb-4 text-center text-xl font-bold text-gray-900 dark:text-white">Testimonials</h3>
+          <h3 className="mb-4 text-center text-xl font-bold text-gray-900 dark:text-white">
+            Testimonials
+          </h3>
           <div className="grid grid-cols-2 gap-4">
             {[1, 2].map((i) => (
               <div key={i} className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                <p className="text-sm italic text-gray-600 dark:text-gray-400">&quot;Great product!&quot;</p>
+                <p className="text-sm italic text-gray-600 dark:text-gray-400">
+                  &quot;Great product!&quot;
+                </p>
                 <p className="mt-2 text-xs font-medium text-gray-900 dark:text-white">User {i}</p>
               </div>
             ))}
           </div>
         </div>
       );
-    case "Footer":
+    case 'Footer':
       return (
         <div className="bg-gray-900 px-8 py-6 text-center text-sm text-gray-400">
           &copy; 2026 Your Company. All rights reserved.
@@ -113,12 +119,7 @@ function ComponentPreview({ component }: { component: CanvasComponent }) {
   }
 }
 
-function Canvas({
-  components,
-  selectedId,
-  onSelectComponent,
-  onDropComponent,
-}: CanvasProps) {
+function Canvas({ components, selectedId, onSelectComponent, onDropComponent }: CanvasProps) {
   const [isDragOver, setIsDragOver] = useState(false);
 
   function handleDragOver(e: React.DragEvent) {
@@ -133,7 +134,7 @@ function Canvas({
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     setIsDragOver(false);
-    const type = e.dataTransfer.getData("componentType");
+    const type = e.dataTransfer.getData('componentType');
     if (type && onDropComponent) {
       onDropComponent(type);
     }
@@ -142,9 +143,9 @@ function Canvas({
   return (
     <div
       className={[
-        "flex-1 overflow-y-auto bg-gray-100 p-6 transition-colors dark:bg-gray-950",
-        isDragOver ? "bg-blue-50 dark:bg-blue-950/20" : "",
-      ].join(" ")}
+        'flex-1 overflow-y-auto bg-gray-100 p-6 transition-colors dark:bg-gray-950',
+        isDragOver ? 'bg-blue-50 dark:bg-blue-950/20' : '',
+      ].join(' ')}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -186,11 +187,11 @@ function Canvas({
                   transition={{ duration: 0.2 }}
                   onClick={() => onSelectComponent?.(component.id)}
                   className={[
-                    "relative cursor-pointer transition-all",
+                    'relative cursor-pointer transition-all',
                     selectedId === component.id
-                      ? "ring-2 ring-blue-500 ring-offset-1"
-                      : "hover:ring-1 hover:ring-blue-300",
-                  ].join(" ")}
+                      ? 'ring-2 ring-blue-500 ring-offset-1'
+                      : 'hover:ring-1 hover:ring-blue-300',
+                  ].join(' ')}
                 >
                   {selectedId === component.id && (
                     <div className="absolute -top-3 left-2 z-10 rounded-md bg-blue-500 px-2 py-0.5 text-xs font-medium text-white">

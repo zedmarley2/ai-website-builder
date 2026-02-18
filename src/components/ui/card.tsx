@@ -1,16 +1,16 @@
-import React from "react";
+import React from 'react';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
 
-function Card({ className = "", children, ...props }: CardProps) {
+function Card({ className = '', children, ...props }: CardProps) {
   return (
     <div
       className={[
-        "rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900",
+        'rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900',
         className,
-      ].join(" ")}
+      ].join(' ')}
       {...props}
     >
       {children}
@@ -18,25 +18,22 @@ function Card({ className = "", children, ...props }: CardProps) {
   );
 }
 
-function CardHeader({ className = "", children, ...props }: CardProps) {
+function CardHeader({ className = '', children, ...props }: CardProps) {
   return (
-    <div className={["px-6 pt-6 pb-2", className].join(" ")} {...props}>
+    <div className={['px-6 pt-6 pb-2', className].join(' ')} {...props}>
       {children}
     </div>
   );
 }
 
 function CardTitle({
-  className = "",
+  className = '',
   children,
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={[
-        "text-lg font-semibold text-gray-900 dark:text-gray-100",
-        className,
-      ].join(" ")}
+      className={['text-lg font-semibold text-gray-900 dark:text-gray-100', className].join(' ')}
       {...props}
     >
       {children}
@@ -45,16 +42,13 @@ function CardTitle({
 }
 
 function CardDescription({
-  className = "",
+  className = '',
   children,
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p
-      className={[
-        "mt-1 text-sm text-gray-500 dark:text-gray-400",
-        className,
-      ].join(" ")}
+      className={['mt-1 text-sm text-gray-500 dark:text-gray-400', className].join(' ')}
       {...props}
     >
       {children}
@@ -62,20 +56,17 @@ function CardDescription({
   );
 }
 
-function CardContent({ className = "", children, ...props }: CardProps) {
+function CardContent({ className = '', children, ...props }: CardProps) {
   return (
-    <div className={["px-6 py-4", className].join(" ")} {...props}>
+    <div className={['px-6 py-4', className].join(' ')} {...props}>
       {children}
     </div>
   );
 }
 
-function CardFooter({ className = "", children, ...props }: CardProps) {
+function CardFooter({ className = '', children, ...props }: CardProps) {
   return (
-    <div
-      className={["px-6 pb-6 pt-2", className].join(" ")}
-      {...props}
-    >
+    <div className={['px-6 pb-6 pt-2', className].join(' ')} {...props}>
       {children}
     </div>
   );

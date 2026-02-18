@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
 interface Website {
   id: string;
@@ -35,82 +35,77 @@ function useWebsites() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch("/api/websites");
+      const response = await fetch('/api/websites');
       if (!response.ok) {
-        throw new Error("Failed to fetch websites");
+        throw new Error('Failed to fetch websites');
       }
       const data = await response.json();
       setWebsites(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const createWebsite = useCallback(
-    async (input: CreateWebsiteInput): Promise<Website | null> => {
-      try {
-        setError(null);
-        const response = await fetch("/api/websites", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(input),
-        });
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || "Failed to create website");
-        }
-        const website = await response.json();
-        setWebsites((prev) => [...prev, website]);
-        return website;
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-        return null;
+  const createWebsite = useCallback(async (input: CreateWebsiteInput): Promise<Website | null> => {
+    try {
+      setError(null);
+      const response = await fetch('/api/websites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create website');
       }
-    },
-    [],
-  );
+      const website = await response.json();
+      setWebsites((prev) => [...prev, website]);
+      return website;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      return null;
+    }
+  }, []);
 
   const updateWebsite = useCallback(
     async (id: string, input: UpdateWebsiteInput): Promise<Website | null> => {
       try {
         setError(null);
         const response = await fetch(`/api/websites/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(input),
         });
         if (!response.ok) {
           const data = await response.json();
-          throw new Error(data.error || "Failed to update website");
+          throw new Error(data.error || 'Failed to update website');
         }
         const website = await response.json();
-        setWebsites((prev) =>
-          prev.map((w) => (w.id === id ? website : w)),
-        );
+        setWebsites((prev) => prev.map((w) => (w.id === id ? website : w)));
         return website;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        setError(err instanceof Error ? err.message : 'An error occurred');
         return null;
       }
     },
-    [],
+    []
   );
 
   const deleteWebsite = useCallback(async (id: string): Promise<boolean> => {
     try {
       setError(null);
       const response = await fetch(`/api/websites/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
       if (!response.ok) {
-        throw new Error("Failed to delete website");
+        throw new Error('Failed to delete website');
       }
       setWebsites((prev) => prev.filter((w) => w.id !== id));
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : 'An error occurred');
       return false;
     }
   }, []);

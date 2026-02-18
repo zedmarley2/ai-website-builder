@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Card,
   CardHeader,
@@ -13,34 +13,34 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
 
     try {
-      const result = await signIn("credentials", {
+      const result = await signIn('credentials', {
         email,
         password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Invalid email or password. Please try again.");
+        setError('Invalid email or password. Please try again.');
       } else {
-        router.push("/dashboard");
+        router.push('/dashboard');
       }
     } catch {
-      setError("An unexpected error occurred. Please try again.");
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -76,9 +76,7 @@ export default function LoginPage() {
         <Card>
           <CardHeader>
             <CardTitle>Sign in to your account</CardTitle>
-            <CardDescription>
-              Enter your credentials to access your dashboard
-            </CardDescription>
+            <CardDescription>Enter your credentials to access your dashboard</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent>
@@ -110,15 +108,11 @@ export default function LoginPage() {
             </CardContent>
             <CardFooter>
               <div className="w-full space-y-4">
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full"
-                >
-                  {loading ? "Signing in..." : "Sign In"}
+                <Button type="submit" disabled={loading} className="w-full">
+                  {loading ? 'Signing in...' : 'Sign In'}
                 </Button>
                 <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-                  Don&apos;t have an account?{" "}
+                  Don&apos;t have an account?{' '}
                   <Link
                     href="/register"
                     className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"

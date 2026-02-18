@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Navbar } from "@/components/layout/navbar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Modal } from "@/components/ui/modal";
-import { Input } from "@/components/ui/input";
-import { useWebsites } from "@/hooks/use-websites";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Navbar } from '@/components/layout/navbar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Modal } from '@/components/ui/modal';
+import { Input } from '@/components/ui/input';
+import { useWebsites } from '@/hooks/use-websites';
 
 const staggerContainer = {
   animate: {
@@ -26,9 +26,9 @@ const fadeInUp = {
 export default function DashboardPage() {
   const { websites, loading, error, createWebsite } = useWebsites();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newDescription, setNewDescription] = useState("");
-  const [newSubdomain, setNewSubdomain] = useState("");
+  const [newName, setNewName] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newSubdomain, setNewSubdomain] = useState('');
   const [creating, setCreating] = useState(false);
 
   async function handleCreate(e: React.FormEvent) {
@@ -41,9 +41,9 @@ export default function DashboardPage() {
     });
     if (website) {
       setShowCreateModal(false);
-      setNewName("");
-      setNewDescription("");
-      setNewSubdomain("");
+      setNewName('');
+      setNewDescription('');
+      setNewSubdomain('');
     }
     setCreating(false);
   }
@@ -84,10 +84,7 @@ export default function DashboardPage() {
         {loading && (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-48 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800"
-              />
+              <div key={i} className="h-48 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800" />
             ))}
           </div>
         )}
@@ -128,9 +125,7 @@ export default function DashboardPage() {
               Create your first website to get started
             </p>
             <div className="mt-6">
-              <Button onClick={() => setShowCreateModal(true)}>
-                Create Your First Website
-              </Button>
+              <Button onClick={() => setShowCreateModal(true)}>Create Your First Website</Button>
             </div>
           </motion.div>
         )}
@@ -171,11 +166,7 @@ export default function DashboardPage() {
 
             {/* Website cards */}
             {websites.map((website) => (
-              <motion.div
-                key={website.id}
-                variants={fadeInUp}
-                transition={{ duration: 0.3 }}
-              >
+              <motion.div key={website.id} variants={fadeInUp} transition={{ duration: 0.3 }}>
                 <Card className="h-48 transition-shadow hover:shadow-md">
                   <CardContent className="flex h-full flex-col justify-between p-6">
                     <div>
@@ -185,13 +176,13 @@ export default function DashboardPage() {
                         </h3>
                         <span
                           className={[
-                            "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                            'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
                             website.published
-                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-                          ].join(" ")}
+                              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                              : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+                          ].join(' ')}
                         >
-                          {website.published ? "Published" : "Draft"}
+                          {website.published ? 'Published' : 'Draft'}
                         </span>
                       </div>
                       {website.description && (
@@ -247,22 +238,16 @@ export default function DashboardPage() {
               required
             />
             <p className="text-xs text-gray-400 dark:text-gray-500">
-              Your site will be available at{" "}
-              <span className="font-medium">
-                {newSubdomain || "your-subdomain"}.aibuilder.dev
-              </span>
+              Your site will be available at{' '}
+              <span className="font-medium">{newSubdomain || 'your-subdomain'}.aibuilder.dev</span>
             </p>
           </div>
           <div className="mt-6 flex justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowCreateModal(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={creating}>
-              {creating ? "Creating..." : "Create Website"}
+              {creating ? 'Creating...' : 'Create Website'}
             </Button>
           </div>
         </form>

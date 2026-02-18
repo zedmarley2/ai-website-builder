@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Card,
   CardHeader,
@@ -12,38 +12,38 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Registration failed. Please try again.");
+        setError(data.error || 'Registration failed. Please try again.');
         return;
       }
 
-      router.push("/login?registered=true");
+      router.push('/login?registered=true');
     } catch {
-      setError("An unexpected error occurred. Please try again.");
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -79,9 +79,7 @@ export default function RegisterPage() {
         <Card>
           <CardHeader>
             <CardTitle>Create your account</CardTitle>
-            <CardDescription>
-              Get started with AI Builder in just a few seconds
-            </CardDescription>
+            <CardDescription>Get started with AI Builder in just a few seconds</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent>
@@ -123,15 +121,11 @@ export default function RegisterPage() {
             </CardContent>
             <CardFooter>
               <div className="w-full space-y-4">
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full"
-                >
-                  {loading ? "Creating account..." : "Create Account"}
+                <Button type="submit" disabled={loading} className="w-full">
+                  {loading ? 'Creating account...' : 'Create Account'}
                 </Button>
                 <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-                  Already have an account?{" "}
+                  Already have an account?{' '}
                   <Link
                     href="/login"
                     className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"

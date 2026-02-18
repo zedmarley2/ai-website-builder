@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { createPageSchema } from "@/types";
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { createPageSchema } from '@/types';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -16,7 +16,7 @@ export async function GET(request: Request, context: RouteContext) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await context.params;
@@ -27,33 +27,27 @@ export async function GET(request: Request, context: RouteContext) {
     });
 
     if (!website) {
-      return NextResponse.json(
-        { error: "Website not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Website not found' }, { status: 404 });
     }
 
     if (website.userId !== session.user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const pages = await prisma.page.findMany({
       where: { websiteId: id },
       include: {
         components: {
-          orderBy: { order: "asc" },
+          orderBy: { order: 'asc' },
         },
       },
-      orderBy: { order: "asc" },
+      orderBy: { order: 'asc' },
     });
 
     return NextResponse.json(pages);
   } catch (error) {
-    console.error("Error fetching pages:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    console.error('Error fetching pages:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -66,7 +60,7 @@ export async function POST(request: Request, context: RouteContext) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await context.params;
@@ -77,14 +71,11 @@ export async function POST(request: Request, context: RouteContext) {
     });
 
     if (!website) {
-      return NextResponse.json(
-        { error: "Website not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Website not found' }, { status: 404 });
     }
 
     if (website.userId !== session.user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -92,8 +83,8 @@ export async function POST(request: Request, context: RouteContext) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Validation failed", details: validation.error.format() },
-        { status: 400 },
+        { error: 'Validation failed', details: validation.error.format() },
+        { status: 400 }
       );
     }
 
@@ -111,8 +102,8 @@ export async function POST(request: Request, context: RouteContext) {
 
     if (existingPage) {
       return NextResponse.json(
-        { error: "A page with this slug already exists for this website" },
-        { status: 409 },
+        { error: 'A page with this slug already exists for this website' },
+        { status: 409 }
       );
     }
 
@@ -127,7 +118,7 @@ export async function POST(request: Request, context: RouteContext) {
     // Determine the next order value
     const lastPage = await prisma.page.findFirst({
       where: { websiteId: id },
-      orderBy: { order: "desc" },
+      orderBy: { order: 'desc' },
     });
 
     const page = await prisma.page.create({
@@ -146,10 +137,7 @@ export async function POST(request: Request, context: RouteContext) {
 
     return NextResponse.json(page, { status: 201 });
   } catch (error) {
-    console.error("Error creating page:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    console.error('Error creating page:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
