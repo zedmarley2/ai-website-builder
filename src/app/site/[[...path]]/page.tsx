@@ -7,58 +7,30 @@ export const revalidate = 60;
 
 interface SitePageProps {
   params: Promise<{ path?: string[] }>;
-  searchParams: Promise<{ __subdomain?: string; __domain?: string }>;
+  searchParams: Promise<{ __subdomain?: string }>;
 }
 
-async function getWebsiteByHostname(subdomain?: string, domain?: string) {
-  if (subdomain) {
-    return prisma.website.findFirst({
-      where: { subdomain, published: true },
-      include: {
-        pages: {
-          orderBy: { order: 'asc' },
-          include: {
-            components: {
-              orderBy: { order: 'asc' },
-            },
+async function getWebsiteBySubdomain(subdomain?: string) {
+  if (!subdomain) return null;
+
+  return prisma.website.findFirst({
+    where: { subdomain, published: true },
+    include: {
+      pages: {
+        orderBy: { order: 'asc' },
+        include: {
+          components: {
+            orderBy: { order: 'asc' },
           },
         },
       },
-    });
-  }
-
-  if (domain) {
-    const domainRecord = await prisma.domain.findFirst({
-      where: { domain, status: 'VERIFIED' },
-      include: {
-        website: {
-          include: {
-            pages: {
-              orderBy: { order: 'asc' },
-              include: {
-                components: {
-                  orderBy: { order: 'asc' },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!domainRecord || !domainRecord.website.published) {
-      return null;
-    }
-
-    return domainRecord.website;
-  }
-
-  return null;
+    },
+  });
 }
 
 export async function generateMetadata({ searchParams }: SitePageProps): Promise<Metadata> {
-  const { __subdomain, __domain } = await searchParams;
-  const website = await getWebsiteByHostname(__subdomain, __domain);
+  const { __subdomain } = await searchParams;
+  const website = await getWebsiteBySubdomain(__subdomain);
 
   if (!website) return {};
 
@@ -70,9 +42,9 @@ export async function generateMetadata({ searchParams }: SitePageProps): Promise
 
 export default async function SitePage({ params, searchParams }: SitePageProps) {
   const { path } = await params;
-  const { __subdomain, __domain } = await searchParams;
+  const { __subdomain } = await searchParams;
 
-  const website = await getWebsiteByHostname(__subdomain, __domain);
+  const website = await getWebsiteBySubdomain(__subdomain);
 
   if (!website) {
     notFound();
