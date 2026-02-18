@@ -181,6 +181,7 @@ model Product {
   category    Category       @relation(fields: [categoryId], references: [id])
   images      ProductImage[]
   inquiries   Inquiry[]
+  quotes      Quote[]        @relation("QuoteProduct")
 
   @@index([categoryId])
   @@index([published])
@@ -228,6 +229,96 @@ model Inquiry {
   @@index([email])
   @@index([status])
   @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Quotes / Orders Pipeline
+// ---------------------------------------------------------------------------
+
+enum QuoteStatus {
+  NEW
+  QUOTE_PREPARED
+  QUOTE_SENT
+  APPROVED
+  IN_PRODUCTION
+  READY_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+model Quote {
+  id                 String      @id @default(uuid())
+  referenceNumber    String      @unique
+  status             QuoteStatus @default(NEW)
+  customerName       String
+  customerEmail      String
+  customerPhone      String?
+  customerCompany    String?
+  productType        String?
+  description        String      @db.Text
+  dimensions         String?
+  referenceImageUrl  String?
+  estimatedDays      Int?
+  validUntil         DateTime?
+  subtotal           Decimal?    @db.Decimal(12, 2)
+  taxRate            Decimal     @default(18) @db.Decimal(5, 2)
+  taxAmount          Decimal?    @db.Decimal(12, 2)
+  total              Decimal?    @db.Decimal(12, 2)
+  deliveryDate       DateTime?
+  cancellationReason String?     @db.Text
+  customerNotes      String?     @db.Text
+  productId          String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  product        Product?             @relation("QuoteProduct", fields: [productId], references: [id], onDelete: SetNull)
+  items          QuoteItem[]
+  statusHistory  QuoteStatusHistory[]
+  notes          QuoteNote[]
+
+  @@index([status])
+  @@index([referenceNumber])
+  @@index([customerEmail])
+  @@index([createdAt])
+}
+
+model QuoteItem {
+  id        String   @id @default(uuid())
+  quoteId   String
+  name      String
+  quantity  Int      @default(1)
+  unitPrice Decimal  @db.Decimal(12, 2)
+  subtotal  Decimal  @db.Decimal(12, 2)
+  createdAt DateTime @default(now())
+
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
+}
+
+model QuoteStatusHistory {
+  id         String      @id @default(uuid())
+  quoteId    String
+  fromStatus QuoteStatus?
+  toStatus   QuoteStatus
+  note       String?     @db.Text
+  createdAt  DateTime    @default(now())
+
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
+  @@index([createdAt])
+}
+
+model QuoteNote {
+  id        String   @id @default(uuid())
+  quoteId   String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
 }
 
 // ---------------------------------------------------------------------------

@@ -37,6 +37,7 @@ interface Notification {
 
 const BREADCRUMB_MAP: Record<string, string> = {
   '/admin': 'Dashboard',
+  '/admin/teklifler': 'Teklifler',
   '/admin/urunler': 'Ürünler',
   '/admin/urunler/yeni': 'Yeni Ürün',
   '/admin/kategoriler': 'Kategoriler',

@@ -346,6 +346,431 @@ async function main() {
   }
   console.log(`Notifications: ${notificationsData.length} samples created`);
 
+  // 9. Seed sample quotes across different statuses
+  const allProducts = await prisma.product.findMany({ take: 5, select: { id: true, name: true } });
+
+  const quotesData: Array<{
+    referenceNumber: string;
+    status: 'NEW' | 'QUOTE_PREPARED' | 'QUOTE_SENT' | 'APPROVED' | 'IN_PRODUCTION' | 'READY_FOR_DELIVERY' | 'DELIVERED' | 'CANCELLED';
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string | null;
+    customerCompany: string | null;
+    productType: string | null;
+    description: string;
+    dimensions: string | null;
+    productId: string | null;
+    estimatedDays: number | null;
+    validUntil: Date | null;
+    subtotal: number | null;
+    taxRate: number;
+    taxAmount: number | null;
+    total: number | null;
+    deliveryDate: Date | null;
+    cancellationReason: string | null;
+    customerNotes: string | null;
+    items: Array<{ name: string; quantity: number; unitPrice: number; subtotal: number }>;
+    statusHistory: Array<{
+      fromStatus: 'NEW' | 'QUOTE_PREPARED' | 'QUOTE_SENT' | 'APPROVED' | 'IN_PRODUCTION' | 'READY_FOR_DELIVERY' | 'DELIVERED' | 'CANCELLED' | null;
+      toStatus: 'NEW' | 'QUOTE_PREPARED' | 'QUOTE_SENT' | 'APPROVED' | 'IN_PRODUCTION' | 'READY_FOR_DELIVERY' | 'DELIVERED' | 'CANCELLED';
+      note: string | null;
+      createdAt: Date;
+    }>;
+    notes: Array<{ content: string; createdAt: Date }>;
+    createdAt: Date;
+  }> = [
+    {
+      referenceNumber: 'PT-2026-001',
+      status: 'NEW',
+      customerName: 'Hasan Çelik',
+      customerEmail: 'hasan.celik@example.com',
+      customerPhone: '+90 533 100 2000',
+      customerCompany: 'Çelik Market',
+      productType: 'LED Tabela',
+      description: 'Marketimiz için dış cephe LED tabelası yaptırmak istiyoruz. 4x1 metre boyutlarında.',
+      dimensions: '4m x 1m',
+      productId: allProducts[2]?.id ?? null,
+      estimatedDays: null,
+      validUntil: null,
+      subtotal: null,
+      taxRate: 18,
+      taxAmount: null,
+      total: null,
+      deliveryDate: null,
+      cancellationReason: null,
+      customerNotes: null,
+      items: [],
+      statusHistory: [
+        { fromStatus: null, toStatus: 'NEW', note: 'Teklif talebi oluşturuldu', createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000) },
+      ],
+      notes: [],
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    },
+    {
+      referenceNumber: 'PT-2026-002',
+      status: 'NEW',
+      customerName: 'Zeynep Arslan',
+      customerEmail: 'zeynep@example.com',
+      customerPhone: '+90 505 200 3000',
+      customerCompany: null,
+      productType: 'Neon Tabela',
+      description: 'Kafe için dekoratif neon yazı istiyorum. "Coffee & Love" yazacak.',
+      dimensions: '1.5m x 0.5m',
+      productId: allProducts[0]?.id ?? null,
+      estimatedDays: null,
+      validUntil: null,
+      subtotal: null,
+      taxRate: 18,
+      taxAmount: null,
+      total: null,
+      deliveryDate: null,
+      cancellationReason: null,
+      customerNotes: null,
+      items: [],
+      statusHistory: [
+        { fromStatus: null, toStatus: 'NEW', note: 'Teklif talebi oluşturuldu', createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) },
+      ],
+      notes: [],
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    },
+    {
+      referenceNumber: 'PT-2026-003',
+      status: 'QUOTE_PREPARED',
+      customerName: 'Burak Yıldırım',
+      customerEmail: 'burak@yildiriminsaat.com',
+      customerPhone: '+90 532 300 4000',
+      customerCompany: 'Yıldırım İnşaat',
+      productType: 'Kutu Harf',
+      description: 'Şirket binası için paslanmaz kutu harf uygulaması. 15 harf, LED aydınlatmalı.',
+      dimensions: 'Her harf 40cm yükseklik',
+      productId: allProducts[3]?.id ?? null,
+      estimatedDays: 14,
+      validUntil: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+      subtotal: 5250,
+      taxRate: 18,
+      taxAmount: 945,
+      total: 6195,
+      deliveryDate: null,
+      cancellationReason: null,
+      customerNotes: null,
+      items: [
+        { name: 'Paslanmaz Kutu Harf (40cm)', quantity: 15, unitPrice: 350, subtotal: 5250 },
+      ],
+      statusHistory: [
+        { fromStatus: null, toStatus: 'NEW', note: 'Teklif talebi oluşturuldu', createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'NEW', toStatus: 'QUOTE_PREPARED', note: 'Fiyat teklifi hazırlandı', createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+      ],
+      notes: [
+        { content: 'Müşteri ile telefonda görüşüldü. Paslanmaz çelik fırçalı mat tercih ediyor.', createdAt: new Date(Date.now() - 2.5 * 24 * 60 * 60 * 1000) },
+      ],
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    },
+    {
+      referenceNumber: 'PT-2026-004',
+      status: 'QUOTE_SENT',
+      customerName: 'Selin Korkmaz',
+      customerEmail: 'selin@korkmaz.com.tr',
+      customerPhone: '+90 542 400 5000',
+      customerCompany: 'Korkmaz Mobilya',
+      productType: 'Işıklı Tabela',
+      description: 'Mobilya mağazası cephesi için ışıklı tabela ve yönlendirme tabelaları.',
+      dimensions: '5m x 1.2m (ana tabela)',
+      productId: allProducts[4]?.id ?? null,
+      estimatedDays: 21,
+      validUntil: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+      subtotal: 14100,
+      taxRate: 18,
+      taxAmount: 2538,
+      total: 16638,
+      deliveryDate: null,
+      cancellationReason: null,
+      customerNotes: 'Kurulum tarihi en geç mart ortası olmalı.',
+      items: [
+        { name: 'Işıklı Cephe Tabelası (5m x 1.2m)', quantity: 1, unitPrice: 8500, subtotal: 8500 },
+        { name: 'Işıklı Yönlendirme Tabelası', quantity: 3, unitPrice: 1800, subtotal: 5400 },
+        { name: 'Montaj İşçiliği', quantity: 1, unitPrice: 200, subtotal: 200 },
+      ],
+      statusHistory: [
+        { fromStatus: null, toStatus: 'NEW', note: 'Teklif talebi oluşturuldu', createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'NEW', toStatus: 'QUOTE_PREPARED', note: null, createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_PREPARED', toStatus: 'QUOTE_SENT', note: 'Teklif e-posta ile gönderildi', createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+      ],
+      notes: [
+        { content: 'Teklif PDF olarak hazırlandı ve e-posta ile gönderildi.', createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+        { content: 'Müşteri yönlendirme tabelası sayısını 3\'e çıkardı.', createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000) },
+      ],
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    },
+    {
+      referenceNumber: 'PT-2026-005',
+      status: 'APPROVED',
+      customerName: 'Emre Şahin',
+      customerEmail: 'emre.sahin@example.com',
+      customerPhone: '+90 553 500 6000',
+      customerCompany: 'Şahin Oto Galeri',
+      productType: 'Totem Tabela',
+      description: 'Oto galeri için 3 metre yüksekliğinde totem tabela.',
+      dimensions: '3m yükseklik, 0.8m genişlik',
+      productId: null,
+      estimatedDays: 28,
+      validUntil: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
+      subtotal: 15000,
+      taxRate: 18,
+      taxAmount: 2700,
+      total: 17700,
+      deliveryDate: null,
+      cancellationReason: null,
+      customerNotes: null,
+      items: [
+        { name: 'Totem Tabela - Standart (3m)', quantity: 1, unitPrice: 15000, subtotal: 15000 },
+      ],
+      statusHistory: [
+        { fromStatus: null, toStatus: 'NEW', note: 'Teklif talebi oluşturuldu', createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'NEW', toStatus: 'QUOTE_PREPARED', note: null, createdAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_PREPARED', toStatus: 'QUOTE_SENT', note: null, createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_SENT', toStatus: 'APPROVED', note: 'Müşteri teklifi onayladı', createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000) },
+      ],
+      notes: [
+        { content: 'Müşteri teklifi onayladı, üretim başlatılabilir.', createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000) },
+      ],
+      createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+    },
+    {
+      referenceNumber: 'PT-2026-006',
+      status: 'IN_PRODUCTION',
+      customerName: 'Derya Aydın',
+      customerEmail: 'derya@example.com',
+      customerPhone: '+90 544 600 7000',
+      customerCompany: 'Aydın Restoran',
+      productType: 'Neon Tabela',
+      description: 'Restoran için iç mekan neon tabela ve dış mekan LED tabela.',
+      dimensions: 'Neon: 2m x 0.6m, LED: 3m x 0.8m',
+      productId: allProducts[0]?.id ?? null,
+      estimatedDays: 18,
+      validUntil: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      subtotal: 7700,
+      taxRate: 18,
+      taxAmount: 1386,
+      total: 9086,
+      deliveryDate: null,
+      cancellationReason: null,
+      customerNotes: 'Neon tabela kırmızı renk olacak.',
+      items: [
+        { name: 'Klasik Neon Tabela (2m x 0.6m)', quantity: 1, unitPrice: 4500, subtotal: 4500 },
+        { name: 'LED Neon Flex Tabela (3m x 0.8m)', quantity: 1, unitPrice: 3200, subtotal: 3200 },
+      ],
+      statusHistory: [
+        { fromStatus: null, toStatus: 'NEW', note: 'Teklif talebi oluşturuldu', createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'NEW', toStatus: 'QUOTE_PREPARED', note: null, createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_PREPARED', toStatus: 'QUOTE_SENT', note: null, createdAt: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_SENT', toStatus: 'APPROVED', note: null, createdAt: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'APPROVED', toStatus: 'IN_PRODUCTION', note: 'Üretim başladı', createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000) },
+      ],
+      notes: [
+        { content: 'Neon tüp camları sipariş edildi.', createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        { content: 'LED panel üretimi tamamlandı.', createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000) },
+      ],
+      createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
+    },
+    {
+      referenceNumber: 'PT-2026-007',
+      status: 'READY_FOR_DELIVERY',
+      customerName: 'Murat Öztürk',
+      customerEmail: 'murat.ozturk@example.com',
+      customerPhone: '+90 535 700 8000',
+      customerCompany: 'Öztürk Eczanesi',
+      productType: 'Işıklı Tabela',
+      description: 'Eczane cephe tabelası ve eczane kros tabela.',
+      dimensions: '2.5m x 0.7m',
+      productId: null,
+      estimatedDays: 10,
+      validUntil: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      subtotal: 11500,
+      taxRate: 18,
+      taxAmount: 2070,
+      total: 13570,
+      deliveryDate: null,
+      cancellationReason: null,
+      customerNotes: null,
+      items: [
+        { name: 'Işıklı Cephe Tabelası', quantity: 1, unitPrice: 8500, subtotal: 8500 },
+        { name: 'Eczane Kros Tabela (LED)', quantity: 1, unitPrice: 3000, subtotal: 3000 },
+      ],
+      statusHistory: [
+        { fromStatus: null, toStatus: 'NEW', note: 'Teklif talebi oluşturuldu', createdAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'NEW', toStatus: 'QUOTE_PREPARED', note: null, createdAt: new Date(Date.now() - 24 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_PREPARED', toStatus: 'QUOTE_SENT', note: null, createdAt: new Date(Date.now() - 23 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_SENT', toStatus: 'APPROVED', note: null, createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'APPROVED', toStatus: 'IN_PRODUCTION', note: null, createdAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'IN_PRODUCTION', toStatus: 'READY_FOR_DELIVERY', note: 'Ürünler hazır, teslim bekleniyor', createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+      ],
+      notes: [
+        { content: 'Eczane kros tabela özel renk (yeşil) ile üretildi.', createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) },
+        { content: 'Her iki ürün de kalite kontrolden geçti. Montaj ekibi bilgilendirildi.', createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+      ],
+      createdAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
+    },
+    {
+      referenceNumber: 'PT-2026-008',
+      status: 'DELIVERED',
+      customerName: 'Canan Polat',
+      customerEmail: 'canan@polatgrubu.com',
+      customerPhone: '+90 555 800 9000',
+      customerCompany: 'Polat Grup',
+      productType: 'Elektronik Tabela',
+      description: 'AVM girişi için büyük LED kayan yazı panosu.',
+      dimensions: '6m x 1m',
+      productId: allProducts[1]?.id ?? null,
+      estimatedDays: 21,
+      validUntil: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      subtotal: 19500,
+      taxRate: 18,
+      taxAmount: 3510,
+      total: 23010,
+      deliveryDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      cancellationReason: null,
+      customerNotes: null,
+      items: [
+        { name: 'LED Kayan Yazı Panosu (6m x 1m)', quantity: 1, unitPrice: 13000, subtotal: 13000 },
+        { name: 'Wi-Fi Kontrol Modülü', quantity: 1, unitPrice: 1500, subtotal: 1500 },
+        { name: 'Montaj ve Kurulum', quantity: 1, unitPrice: 5000, subtotal: 5000 },
+      ],
+      statusHistory: [
+        { fromStatus: null, toStatus: 'NEW', note: 'Teklif talebi oluşturuldu', createdAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'NEW', toStatus: 'QUOTE_PREPARED', note: null, createdAt: new Date(Date.now() - 43 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_PREPARED', toStatus: 'QUOTE_SENT', note: null, createdAt: new Date(Date.now() - 42 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_SENT', toStatus: 'APPROVED', note: null, createdAt: new Date(Date.now() - 38 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'APPROVED', toStatus: 'IN_PRODUCTION', note: null, createdAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'IN_PRODUCTION', toStatus: 'READY_FOR_DELIVERY', note: null, createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'READY_FOR_DELIVERY', toStatus: 'DELIVERED', note: 'Teslim ve montaj tamamlandı', createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) },
+      ],
+      notes: [
+        { content: 'LED panel tedarik süreci başladı.', createdAt: new Date(Date.now() - 34 * 24 * 60 * 60 * 1000) },
+        { content: 'Montaj ekibi AVM ile tarih planlaması yaptı.', createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000) },
+        { content: 'Teslim ve montaj başarıyla tamamlandı. Müşteri memnun.', createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) },
+      ],
+      createdAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
+    },
+    {
+      referenceNumber: 'PT-2026-009',
+      status: 'DELIVERED',
+      customerName: 'Oğuz Tan',
+      customerEmail: 'oguz@tangroup.com',
+      customerPhone: '+90 546 900 1000',
+      customerCompany: 'Tan Holding',
+      productType: 'Kutu Harf',
+      description: 'Holding binası için krom kutu harf uygulaması. 20 harf.',
+      dimensions: 'Her harf 50cm yükseklik',
+      productId: allProducts[3]?.id ?? null,
+      estimatedDays: 14,
+      validUntil: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000),
+      subtotal: 10000,
+      taxRate: 18,
+      taxAmount: 1800,
+      total: 11800,
+      deliveryDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
+      cancellationReason: null,
+      customerNotes: null,
+      items: [
+        { name: 'Krom Kutu Harf (50cm)', quantity: 20, unitPrice: 500, subtotal: 10000 },
+      ],
+      statusHistory: [
+        { fromStatus: null, toStatus: 'NEW', note: 'Teklif talebi oluşturuldu', createdAt: new Date(Date.now() - 50 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'NEW', toStatus: 'QUOTE_PREPARED', note: null, createdAt: new Date(Date.now() - 48 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_PREPARED', toStatus: 'QUOTE_SENT', note: null, createdAt: new Date(Date.now() - 47 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_SENT', toStatus: 'APPROVED', note: null, createdAt: new Date(Date.now() - 42 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'APPROVED', toStatus: 'IN_PRODUCTION', note: null, createdAt: new Date(Date.now() - 38 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'IN_PRODUCTION', toStatus: 'READY_FOR_DELIVERY', note: null, createdAt: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'READY_FOR_DELIVERY', toStatus: 'DELIVERED', note: 'Teslim edildi', createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000) },
+      ],
+      notes: [
+        { content: 'Krom malzeme tedarik edildi, üretim başladı.', createdAt: new Date(Date.now() - 36 * 24 * 60 * 60 * 1000) },
+      ],
+      createdAt: new Date(Date.now() - 50 * 24 * 60 * 60 * 1000),
+    },
+    {
+      referenceNumber: 'PT-2026-010',
+      status: 'CANCELLED',
+      customerName: 'İbrahim Kılıç',
+      customerEmail: 'ibrahim@example.com',
+      customerPhone: '+90 537 100 2000',
+      customerCompany: null,
+      productType: 'LED Tabela',
+      description: 'Dükkan için LED tabela.',
+      dimensions: '2m x 0.5m',
+      productId: null,
+      estimatedDays: null,
+      validUntil: null,
+      subtotal: 2800,
+      taxRate: 18,
+      taxAmount: 504,
+      total: 3304,
+      deliveryDate: null,
+      cancellationReason: 'Müşteri bütçe yetersizliği nedeniyle iptal etti.',
+      customerNotes: null,
+      items: [
+        { name: 'Tek Renk LED Tabela (2m x 0.5m)', quantity: 1, unitPrice: 2800, subtotal: 2800 },
+      ],
+      statusHistory: [
+        { fromStatus: null, toStatus: 'NEW', note: 'Teklif talebi oluşturuldu', createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'NEW', toStatus: 'QUOTE_PREPARED', note: null, createdAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_PREPARED', toStatus: 'QUOTE_SENT', note: null, createdAt: new Date(Date.now() - 17 * 24 * 60 * 60 * 1000) },
+        { fromStatus: 'QUOTE_SENT', toStatus: 'CANCELLED', note: 'Müşteri iptal etti', createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000) },
+      ],
+      notes: [
+        { content: 'Müşteri bütçe yetersizliği nedeniyle teklifi iptal etmek istediğini bildirdi.', createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000) },
+      ],
+      createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
+    },
+  ];
+
+  for (const q of quotesData) {
+    const { items, statusHistory, notes: quoteNotes, createdAt, ...quoteData } = q;
+
+    const quote = await prisma.quote.create({
+      data: {
+        ...quoteData,
+        subtotal: quoteData.subtotal,
+        taxAmount: quoteData.taxAmount,
+        total: quoteData.total,
+        createdAt,
+      },
+    });
+
+    // Create items
+    for (const item of items) {
+      await prisma.quoteItem.create({
+        data: {
+          quoteId: quote.id,
+          ...item,
+        },
+      });
+    }
+
+    // Create status history
+    for (const sh of statusHistory) {
+      await prisma.quoteStatusHistory.create({
+        data: {
+          quoteId: quote.id,
+          ...sh,
+        },
+      });
+    }
+
+    // Create notes
+    for (const note of quoteNotes) {
+      await prisma.quoteNote.create({
+        data: {
+          quoteId: quote.id,
+          ...note,
+        },
+      });
+    }
+
+    console.log(`Quote: ${quote.referenceNumber} - ${quote.status}`);
+  }
+  console.log(`Quotes: ${quotesData.length} samples created`);
+
   console.log('\nSeed completed successfully!');
   console.log('Admin login: admin@parstabela.com / admin123');
 }

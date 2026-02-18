@@ -56,6 +56,52 @@ export const contactFormSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
+// Quote Schemas
+// ---------------------------------------------------------------------------
+
+export const createQuoteSchema = z.object({
+  customerName: z.string().min(1, 'Ad soyad zorunludur').max(100),
+  customerEmail: z.string().email('Geçerli bir e-posta adresi giriniz'),
+  customerPhone: z.string().max(20).optional(),
+  customerCompany: z.string().max(200).optional(),
+  productType: z.string().max(100).optional(),
+  description: z.string().min(1, 'Açıklama zorunludur').max(5000),
+  dimensions: z.string().max(200).optional(),
+  productId: z.string().uuid().optional(),
+});
+
+export const quoteItemSchema = z.object({
+  name: z.string().min(1, 'Kalem adı zorunludur').max(200),
+  quantity: z.number().int().min(1, 'Miktar en az 1 olmalıdır'),
+  unitPrice: z.number().min(0, 'Birim fiyat 0 veya daha büyük olmalıdır'),
+});
+
+export const updateQuoteSchema = z.object({
+  status: z
+    .enum([
+      'NEW',
+      'QUOTE_PREPARED',
+      'QUOTE_SENT',
+      'APPROVED',
+      'IN_PRODUCTION',
+      'READY_FOR_DELIVERY',
+      'DELIVERED',
+      'CANCELLED',
+    ])
+    .optional(),
+  items: z.array(quoteItemSchema).optional(),
+  estimatedDays: z.number().int().min(1).optional().nullable(),
+  validUntil: z.string().datetime().optional().nullable(),
+  customerNotes: z.string().max(5000).optional().nullable(),
+  cancellationReason: z.string().max(2000).optional().nullable(),
+  deliveryDate: z.string().datetime().optional().nullable(),
+});
+
+export const createQuoteNoteSchema = z.object({
+  content: z.string().min(1, 'Not içeriği zorunludur').max(5000),
+});
+
+// ---------------------------------------------------------------------------
 // Inferred Types
 // ---------------------------------------------------------------------------
 
@@ -65,3 +111,6 @@ export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 export type CreateProductImageInput = z.infer<typeof createProductImageSchema>;
 export type ContactFormInput = z.infer<typeof contactFormSchema>;
+export type CreateQuoteInput = z.infer<typeof createQuoteSchema>;
+export type UpdateQuoteInput = z.infer<typeof updateQuoteSchema>;
+export type CreateQuoteNoteInput = z.infer<typeof createQuoteNoteSchema>;

@@ -10,20 +10,9 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const monthlyData = [
-  { month: 'Ocak', gelir: 42000 },
-  { month: 'Şubat', gelir: 38500 },
-  { month: 'Mart', gelir: 51200 },
-  { month: 'Nisan', gelir: 47800 },
-  { month: 'Mayıs', gelir: 55300 },
-  { month: 'Haziran', gelir: 62100 },
-  { month: 'Temmuz', gelir: 58400 },
-  { month: 'Ağustos', gelir: 49700 },
-  { month: 'Eylül', gelir: 53600 },
-  { month: 'Ekim', gelir: 61200 },
-  { month: 'Kasım', gelir: 68500 },
-  { month: 'Aralık', gelir: 72300 },
-];
+interface DashboardChartsProps {
+  data: { month: string; gelir: number }[];
+}
 
 function CustomTooltip({
   active,
@@ -46,11 +35,11 @@ function CustomTooltip({
   );
 }
 
-export function DashboardCharts() {
+export function DashboardCharts({ data }: DashboardChartsProps) {
   return (
     <div className="h-[320px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={monthlyData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+        <BarChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:opacity-20" />
           <XAxis
             dataKey="month"

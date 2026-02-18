@@ -298,6 +298,7 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
         open={quoteOpen}
         onClose={() => setQuoteOpen(false)}
         productName={product.name}
+        productId={product.id}
       />
     </>
   );
