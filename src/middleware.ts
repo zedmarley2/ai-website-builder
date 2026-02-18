@@ -2,6 +2,11 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 const ROOT_DOMAIN = process.env.ROOT_DOMAIN ?? 'localhost:3000';
 
+// Hosts that should always be treated as the platform (not custom domains)
+const PLATFORM_HOSTS = new Set(
+  ['localhost', '127.0.0.1', ROOT_DOMAIN.split(':')[0]].map((h) => h.toLowerCase())
+);
+
 // Session cookie names used by NextAuth v5 / Auth.js
 const SESSION_COOKIE = 'authjs.session-token';
 const SESSION_COOKIE_SECURE = '__Secure-authjs.session-token';
@@ -15,13 +20,12 @@ function getHostnameInfo(host: string): {
   subdomain: string | null;
   customDomain: string | null;
 } {
-  const hostWithoutPort = host.split(':')[0];
-  const rootWithoutPort = ROOT_DOMAIN.split(':')[0];
+  const hostWithoutPort = host.split(':')[0].toLowerCase();
+  const rootWithoutPort = ROOT_DOMAIN.split(':')[0].toLowerCase();
 
-  // Platform: exact root domain or www.root
+  // Platform: localhost, server IP, root domain, or www.root
   if (
-    host === ROOT_DOMAIN ||
-    hostWithoutPort === rootWithoutPort ||
+    PLATFORM_HOSTS.has(hostWithoutPort) ||
     hostWithoutPort === `www.${rootWithoutPort}`
   ) {
     return { isPlatform: true, subdomain: null, customDomain: null };
