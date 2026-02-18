@@ -1,7 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 
 const ROOT_DOMAIN = process.env.ROOT_DOMAIN ?? 'localhost:3000';
+
+// Session cookie names used by NextAuth v5 / Auth.js
+const SESSION_COOKIE = 'authjs.session-token';
+const SESSION_COOKIE_SECURE = '__Secure-authjs.session-token';
+
+function hasSessionCookie(req: NextRequest): boolean {
+  return !!(req.cookies.get(SESSION_COOKIE)?.value || req.cookies.get(SESSION_COOKIE_SECURE)?.value);
+}
 
 function getHostnameInfo(host: string): {
   isPlatform: boolean;
@@ -53,13 +60,14 @@ export async function middleware(req: NextRequest) {
   }
 
   // --- Platform request: auth guard for protected routes ---
+  // Cookie-based check only; full JWT verification happens in route handlers
+  // via auth() from @/lib/auth. This avoids importing next-auth/jwt which
+  // transitively pulls in @panva/hkdf → node:crypto (not edge-compatible).
   const protectedPrefixes = ['/dashboard', '/editor'];
   const isProtectedRoute = protectedPrefixes.some((prefix) => nextUrl.pathname.startsWith(prefix));
 
   if (isProtectedRoute) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-
-    if (!token) {
+    if (!hasSessionCookie(req)) {
       const loginUrl = new URL('/login', nextUrl.origin);
       loginUrl.searchParams.set('callbackUrl', nextUrl.pathname);
       return NextResponse.redirect(loginUrl);
