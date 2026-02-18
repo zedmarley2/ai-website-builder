@@ -78,6 +78,15 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // Admin routes: redirect to admin login if no session cookie
+  // (The admin layout does full isAdmin check server-side)
+  if (nextUrl.pathname.startsWith('/admin') && !nextUrl.pathname.startsWith('/admin/login')) {
+    if (!hasSessionCookie(req)) {
+      const loginUrl = new URL('/admin/login', nextUrl.origin);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
   return NextResponse.next();
 }
 
