@@ -28,7 +28,7 @@ async function getWebsiteByHostname(subdomain?: string, domain?: string) {
   }
 
   if (domain) {
-    const domainRecord = await prisma.domain.findUnique({
+    const domainRecord = await prisma.domain.findFirst({
       where: { domain, status: 'VERIFIED' },
       include: {
         website: {
