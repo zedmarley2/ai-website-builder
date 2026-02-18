@@ -5,10 +5,6 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
-const neonGlowStyle = {
-  textShadow: '0 0 7px #00f0ff, 0 0 10px #00f0ff, 0 0 21px #00f0ff, 0 0 42px #00f0ff',
-};
-
 export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -29,47 +25,35 @@ export default function AdminLoginPage() {
       });
 
       if (result?.error) {
-        setError('Gecersiz e-posta veya sifre');
+        setError('Geçersiz e-posta veya şifre');
       } else {
         router.push('/admin');
       }
     } catch {
-      setError('Bir hata olustu. Lutfen tekrar deneyin.');
+      setError('Bir hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4">
-      {/* Background grid effect */}
-      <div
-        className="pointer-events-none fixed inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: 'linear-gradient(#00f0ff 1px, transparent 1px), linear-gradient(90deg, #00f0ff 1px, transparent 1px)',
-          backgroundSize: '50px 50px',
-        }}
-      />
-
+    <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] px-4 dark:bg-[#0f172a]">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative w-full max-w-md"
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-md"
       >
-        <div
-          className="rounded-xl border border-gray-800 bg-gray-900 p-8 shadow-2xl"
-          style={{ boxShadow: '0 0 40px rgba(0, 240, 255, 0.05)' }}
-        >
+        <div className="rounded-xl border border-[#e2e8f0] bg-white p-8 shadow-lg dark:border-[#334155] dark:bg-[#1e293b]">
           {/* Logo */}
           <div className="mb-8 text-center">
-            <h1
-              className="text-3xl font-bold text-[#00f0ff]"
-              style={neonGlowStyle}
-            >
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-[#1a365d]">
+              <span className="text-xl font-bold text-[#d4a843]">P</span>
+            </div>
+            <h1 className="text-2xl font-bold text-[#1a365d] dark:text-white">
               Pars Tabela
             </h1>
-            <p className="mt-2 text-sm text-gray-500">Admin Panel Girisi</p>
+            <p className="mt-1 text-sm text-[#d4a843]">Yönetim Paneli</p>
           </div>
 
           {/* Error */}
@@ -77,16 +61,16 @@ export default function AdminLoginPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 rounded-lg border border-[#ff006e]/30 bg-[#ff006e]/10 px-4 py-3"
+              className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 dark:border-red-500/30 dark:bg-red-500/10"
             >
-              <p className="text-sm text-[#ff006e]">{error}</p>
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </motion.div>
           )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-gray-300">
+              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 E-posta
               </label>
               <input
@@ -96,14 +80,14 @@ export default function AdminLoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-white placeholder-gray-500 transition-colors focus:border-[#00f0ff] focus:outline-none"
+                className="w-full rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-[#1a365d] focus:outline-none dark:border-[#334155] dark:bg-[#0f172a] dark:text-white dark:placeholder-gray-500 dark:focus:border-[#d4a843]"
                 placeholder="admin@parstabela.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-300">
-                Sifre
+              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Şifre
               </label>
               <input
                 id="password"
@@ -112,21 +96,20 @@ export default function AdminLoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-white placeholder-gray-500 transition-colors focus:border-[#00f0ff] focus:outline-none"
-                placeholder="Sifrenizi giriniz"
+                className="w-full rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-[#1a365d] focus:outline-none dark:border-[#334155] dark:bg-[#0f172a] dark:text-white dark:placeholder-gray-500 dark:focus:border-[#d4a843]"
+                placeholder="Şifrenizi giriniz"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#00f0ff] px-4 py-3 text-sm font-semibold text-gray-950 transition-all hover:bg-[#00f0ff]/90 disabled:opacity-50"
-              style={{ boxShadow: '0 0 20px rgba(0, 240, 255, 0.3)' }}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1a365d] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#1a365d]/90 disabled:opacity-50"
             >
               {loading && (
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-950/30 border-t-gray-950" />
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
               )}
-              Giris Yap
+              Giriş Yap
             </button>
           </form>
         </div>

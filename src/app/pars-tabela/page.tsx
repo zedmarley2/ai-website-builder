@@ -24,7 +24,6 @@ export default async function ParsTabelaPage() {
     }),
   ]);
 
-  // Serialize Decimal prices to strings for client component
   const serializedProducts = featuredProducts.map((p) => ({
     ...p,
     price: p.price ? p.price.toString() : null,

@@ -30,11 +30,11 @@ interface ProductsGalleryProps {
   categories: CategoryItem[];
 }
 
-const GRADIENT_COLORS = [
-  'from-[#00f0ff]/30 to-[#00f0ff]/5',
-  'from-[#ff006e]/30 to-[#ff006e]/5',
-  'from-[#39ff14]/30 to-[#39ff14]/5',
-  'from-violet-500/30 to-violet-500/5',
+const PLACEHOLDER_GRADIENTS = [
+  'from-[#1a365d]/20 to-[#1a365d]/5',
+  'from-[#d4a843]/20 to-[#d4a843]/5',
+  'from-slate-400/20 to-slate-400/5',
+  'from-[#1a365d]/15 to-[#d4a843]/10',
 ];
 
 export function ProductsGallery({ products, categories }: ProductsGalleryProps) {
@@ -45,29 +45,29 @@ export function ProductsGallery({ products, categories }: ProductsGalleryProps) 
     : products;
 
   return (
-    <section id="urunlerimiz" className="bg-gray-950 py-24">
+    <section
+      id="urunlerimiz"
+      className="bg-white py-24 transition-colors duration-300 dark:bg-[#0f172a]"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-16 text-center">
-          <h2
-            className="text-4xl font-bold text-[#00f0ff] sm:text-5xl"
-            style={{
-              textShadow: '0 0 7px #00f0ff, 0 0 10px #00f0ff, 0 0 21px #00f0ff',
-            }}
-          >
+          <h2 className="text-4xl font-bold text-[#1a365d] sm:text-5xl dark:text-white">
             Ürünlerimiz
           </h2>
-          <p className="mt-4 text-lg text-gray-400">En son projelerimiz ve ürünlerimiz</p>
+          <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
+            En son projelerimiz ve ürünlerimiz
+          </p>
         </div>
 
-        {/* Category filters */}
-        <div className="mb-12 flex flex-wrap justify-center gap-3">
+        {/* Category filters - horizontal scroll on mobile */}
+        <div className="mb-12 flex gap-3 overflow-x-auto pb-2 sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">
           <button
             type="button"
             onClick={() => setActiveCategory(null)}
-            className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
+            className={`shrink-0 rounded-full px-5 py-2 text-sm font-medium transition-all ${
               activeCategory === null
-                ? 'bg-[#00f0ff]/20 text-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.3)]'
-                : 'border border-gray-700 text-gray-400 hover:border-[#00f0ff] hover:text-[#00f0ff]'
+                ? 'bg-[#1a365d] text-white dark:bg-[#d4a843] dark:text-[#0f172a]'
+                : 'border border-[#e2e8f0] bg-white text-[#1f2937] hover:border-[#1a365d] dark:border-[#334155] dark:bg-[#1e293b] dark:text-gray-300 dark:hover:border-[#d4a843]'
             }`}
           >
             Tümü
@@ -77,10 +77,10 @@ export function ProductsGallery({ products, categories }: ProductsGalleryProps) 
               key={cat.id}
               type="button"
               onClick={() => setActiveCategory(cat.id)}
-              className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
+              className={`shrink-0 rounded-full px-5 py-2 text-sm font-medium transition-all ${
                 activeCategory === cat.id
-                  ? 'bg-[#00f0ff]/20 text-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.3)]'
-                  : 'border border-gray-700 text-gray-400 hover:border-[#00f0ff] hover:text-[#00f0ff]'
+                  ? 'bg-[#1a365d] text-white dark:bg-[#d4a843] dark:text-[#0f172a]'
+                  : 'border border-[#e2e8f0] bg-white text-[#1f2937] hover:border-[#1a365d] dark:border-[#334155] dark:bg-[#1e293b] dark:text-gray-300 dark:hover:border-[#d4a843]'
               }`}
             >
               {cat.name}
@@ -95,17 +95,14 @@ export function ProductsGallery({ products, categories }: ProductsGalleryProps) 
               <motion.div
                 key={product.id}
                 layout
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
-                className="group overflow-hidden rounded-2xl border border-gray-800 bg-gray-900/50 transition-all duration-300 hover:-translate-y-1 hover:border-[#00f0ff]/50"
-                whileHover={{
-                  boxShadow: '0 0 20px rgba(0,240,255,0.2), 0 0 40px rgba(0,240,255,0.1)',
-                }}
+                className="group overflow-hidden rounded-xl border border-[#e2e8f0] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-[#334155] dark:bg-[#1e293b]"
               >
                 {/* Image or gradient placeholder */}
-                <div className="relative aspect-[4/3] overflow-hidden">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-t-xl">
                   {product.images.length > 0 ? (
                     <Image
                       src={product.images[0].url}
@@ -116,21 +113,25 @@ export function ProductsGallery({ products, categories }: ProductsGalleryProps) 
                     />
                   ) : (
                     <div
-                      className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${GRADIENT_COLORS[i % GRADIENT_COLORS.length]}`}
+                      className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${PLACEHOLDER_GRADIENTS[i % PLACEHOLDER_GRADIENTS.length]}`}
                     >
-                      <span className="text-5xl opacity-50">💡</span>
+                      <svg className="h-12 w-12 text-[#1a365d]/30 dark:text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+                      </svg>
                     </div>
                   )}
                 </div>
 
                 {/* Card content */}
                 <div className="p-5">
-                  <span className="mb-2 inline-block rounded-full bg-[#00f0ff]/10 px-3 py-1 text-xs font-medium text-[#00f0ff]">
+                  <span className="mb-2 inline-block rounded-full bg-[#d4a843]/10 px-3 py-1 text-xs font-medium text-[#d4a843]">
                     {product.category.name}
                   </span>
-                  <h3 className="mb-1 text-lg font-semibold text-white">{product.name}</h3>
+                  <h3 className="mb-1 text-lg font-semibold text-[#1f2937] dark:text-white">
+                    {product.name}
+                  </h3>
                   {product.price && (
-                    <p className="text-sm font-medium text-[#39ff14]">
+                    <p className="text-sm font-medium text-[#1a365d] dark:text-[#d4a843]">
                       ₺{' '}
                       {typeof product.price === 'number'
                         ? product.price.toLocaleString('tr-TR')
@@ -144,17 +145,16 @@ export function ProductsGallery({ products, categories }: ProductsGalleryProps) 
         </div>
 
         {filteredProducts.length === 0 && (
-          <p className="mt-12 text-center text-gray-500">Bu kategoride henüz ürün bulunmuyor.</p>
+          <p className="mt-12 text-center text-gray-500 dark:text-gray-400">
+            Bu kategoride henüz ürün bulunmuyor.
+          </p>
         )}
 
         {/* View all button */}
         <div className="mt-12 text-center">
           <a
             href="/pars-tabela/urunlerimiz"
-            className="inline-block rounded-full border-2 border-[#00f0ff] px-8 py-3 text-lg font-semibold text-[#00f0ff] transition-all duration-300 hover:bg-[#00f0ff]/10"
-            style={{
-              boxShadow: '0 0 15px rgba(0,240,255,0.3), inset 0 0 15px rgba(0,240,255,0.1)',
-            }}
+            className="inline-block rounded-full bg-[#1a365d] px-8 py-3 text-lg font-semibold text-white transition-all duration-300 hover:bg-[#1a365d]/90 hover:shadow-md dark:bg-[#d4a843] dark:text-[#0f172a] dark:hover:bg-[#e0b854]"
           >
             Tüm Ürünleri Gör
           </a>

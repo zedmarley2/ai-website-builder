@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ProductForm } from '@/components/admin/product-form';
 
 interface ProductImage {
@@ -17,7 +18,6 @@ export default function NewProductPage() {
     data: { name: string; description: string; price: string; categoryId: string; featured: boolean; published: boolean },
     images: ProductImage[]
   ) {
-    // Create the product
     const productRes = await fetch('/api/admin/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -33,12 +33,11 @@ export default function NewProductPage() {
 
     if (!productRes.ok) {
       const err = await productRes.json();
-      throw new Error(err.error || 'Urun olusturulamadi');
+      throw new Error(err.error || 'Ürün oluşturulamadı');
     }
 
     const { data: product } = await productRes.json();
 
-    // Add images if any
     if (images.length > 0) {
       await Promise.all(
         images.map((img, index) =>
@@ -60,11 +59,20 @@ export default function NewProductPage() {
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumb */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Yeni Urun Ekle</h1>
-        <p className="mt-1 text-sm text-gray-400">Yeni bir urun olusturun</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          <Link href="/admin" className="hover:text-[#1a365d] dark:hover:text-[#d4a843]">Yönetim Paneli</Link>
+          {' / '}
+          <Link href="/admin/products" className="hover:text-[#1a365d] dark:hover:text-[#d4a843]">Ürünler</Link>
+          {' / '}
+          <span className="text-[#1a365d] dark:text-[#d4a843]">Yeni Ürün</span>
+        </p>
+        <h1 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">Yeni Ürün Ekle</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Yeni bir ürün oluşturun</p>
       </div>
-      <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
+
+      <div className="rounded-xl border border-[#e2e8f0] bg-white p-6 shadow-sm dark:border-[#334155] dark:bg-[#1e293b]">
         <ProductForm onSubmit={handleSubmit} isEditing={false} />
       </div>
     </div>

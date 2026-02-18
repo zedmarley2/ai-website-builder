@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useToast } from '@/components/pars-tabela/toast';
 
 interface FormData {
   name: string;
@@ -66,12 +67,12 @@ const CONTACT_INFO = [
 ];
 
 const inputClasses =
-  'w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-500 transition-all focus:border-[#00f0ff] focus:outline-none focus:shadow-[0_0_10px_rgba(0,240,255,0.3)]';
+  'w-full rounded-lg border border-[#e2e8f0] bg-white px-4 py-3 text-sm text-[#1f2937] placeholder-gray-400 transition-all focus:border-[#1a365d] focus:outline-none focus:ring-1 focus:ring-[#1a365d] dark:border-[#334155] dark:bg-[#1e293b] dark:text-gray-100 dark:placeholder-gray-500 dark:focus:border-[#d4a843] dark:focus:ring-[#d4a843]';
 
 export function ContactSection() {
+  const { toast } = useToast();
   const [form, setForm] = useState<FormData>(initialForm);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -80,7 +81,6 @@ export function ContactSection() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus('loading');
-    setErrorMessage('');
 
     try {
       const res = await fetch('/api/pars-tabela/contact', {
@@ -96,25 +96,24 @@ export function ContactSection() {
 
       setStatus('success');
       setForm(initialForm);
+      toast('Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.', 'success');
     } catch (err) {
       setStatus('error');
-      setErrorMessage(err instanceof Error ? err.message : 'Bir hata oluştu.');
+      toast(err instanceof Error ? err.message : 'Bir hata oluştu.', 'error');
     }
   }
 
   return (
-    <section id="iletisim" className="bg-gray-950 py-24">
+    <section
+      id="iletisim"
+      className="bg-white py-24 transition-colors duration-300 dark:bg-[#0f172a]"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-16 text-center">
-          <h2
-            className="text-4xl font-bold text-[#00f0ff] sm:text-5xl"
-            style={{
-              textShadow: '0 0 7px #00f0ff, 0 0 10px #00f0ff, 0 0 21px #00f0ff',
-            }}
-          >
+          <h2 className="text-4xl font-bold text-[#1a365d] sm:text-5xl dark:text-white">
             İletişim
           </h2>
-          <p className="mt-4 text-lg text-gray-400">
+          <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
             Projeleriniz için bizimle iletişime geçin
           </p>
         </div>
@@ -126,24 +125,27 @@ export function ContactSection() {
           whileInView="visible"
           viewport={{ once: true, margin: '-80px' }}
         >
-          {/* Left column - Contact info */}
-          <motion.div variants={itemVariants} className="space-y-8">
-            <div className="space-y-6">
-              {CONTACT_INFO.map((item) => (
-                <div key={item.label} className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#00f0ff]/10 text-[#00f0ff]">
-                    {item.icon}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-400">{item.label}</p>
-                    <p className="text-white">{item.value}</p>
-                  </div>
+          {/* Left column - Contact info cards */}
+          <motion.div variants={itemVariants} className="space-y-4">
+            {CONTACT_INFO.map((item) => (
+              <div
+                key={item.label}
+                className="flex items-start gap-4 rounded-xl border border-[#e2e8f0] bg-[#f8fafc] p-5 dark:border-[#334155] dark:bg-[#1e293b]"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1a365d]/10 text-[#1a365d] dark:bg-[#d4a843]/10 dark:text-[#d4a843]">
+                  {item.icon}
                 </div>
-              ))}
-            </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    {item.label}
+                  </p>
+                  <p className="font-medium text-[#1f2937] dark:text-white">{item.value}</p>
+                </div>
+              </div>
+            ))}
 
             {/* Map */}
-            <div className="overflow-hidden rounded-2xl border border-gray-800">
+            <div className="overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155]">
               <iframe
                 title="Pars Tabela Konum"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d195884.05429!2d32.6226!3d39.9334!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d347d520732db1%3A0xbdc57b0c0842b8d!2sAnkara%2C+Turkey!5e0!3m2!1sen!2s!4v1"
@@ -161,10 +163,13 @@ export function ContactSection() {
           <motion.div variants={itemVariants}>
             <form
               onSubmit={handleSubmit}
-              className="space-y-5 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8"
+              className="space-y-5 rounded-xl border border-[#e2e8f0] bg-[#f8fafc] p-6 sm:p-8 dark:border-[#334155] dark:bg-[#1e293b]"
             >
               <div>
-                <label htmlFor="contact-name" className="mb-1.5 block text-sm font-medium text-gray-300">
+                <label
+                  htmlFor="contact-name"
+                  className="mb-1.5 block text-sm font-medium text-[#1f2937] dark:text-gray-300"
+                >
                   Ad Soyad
                 </label>
                 <input
@@ -180,7 +185,10 @@ export function ContactSection() {
               </div>
 
               <div>
-                <label htmlFor="contact-email" className="mb-1.5 block text-sm font-medium text-gray-300">
+                <label
+                  htmlFor="contact-email"
+                  className="mb-1.5 block text-sm font-medium text-[#1f2937] dark:text-gray-300"
+                >
                   E-posta
                 </label>
                 <input
@@ -196,7 +204,10 @@ export function ContactSection() {
               </div>
 
               <div>
-                <label htmlFor="contact-phone" className="mb-1.5 block text-sm font-medium text-gray-300">
+                <label
+                  htmlFor="contact-phone"
+                  className="mb-1.5 block text-sm font-medium text-[#1f2937] dark:text-gray-300"
+                >
                   Telefon
                 </label>
                 <input
@@ -211,7 +222,10 @@ export function ContactSection() {
               </div>
 
               <div>
-                <label htmlFor="contact-message" className="mb-1.5 block text-sm font-medium text-gray-300">
+                <label
+                  htmlFor="contact-message"
+                  className="mb-1.5 block text-sm font-medium text-[#1f2937] dark:text-gray-300"
+                >
                   Mesaj
                 </label>
                 <textarea
@@ -229,22 +243,10 @@ export function ContactSection() {
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                className="w-full rounded-lg bg-[#00f0ff] px-6 py-3 text-base font-semibold text-gray-950 transition-all duration-300 hover:bg-[#00f0ff]/90 disabled:opacity-50"
-                style={{
-                  boxShadow: '0 0 20px rgba(0,240,255,0.4)',
-                }}
+                className="w-full rounded-lg bg-[#1a365d] px-6 py-3 text-base font-semibold text-white transition-all duration-300 hover:bg-[#1a365d]/90 hover:shadow-md disabled:opacity-50 dark:bg-[#d4a843] dark:text-[#0f172a] dark:hover:bg-[#e0b854]"
               >
                 {status === 'loading' ? 'Gönderiliyor...' : 'Mesaj Gönder'}
               </button>
-
-              {status === 'success' && (
-                <p className="text-center text-sm font-medium text-[#39ff14]">
-                  Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.
-                </p>
-              )}
-              {status === 'error' && (
-                <p className="text-center text-sm font-medium text-red-400">{errorMessage}</p>
-              )}
             </form>
           </motion.div>
         </motion.div>

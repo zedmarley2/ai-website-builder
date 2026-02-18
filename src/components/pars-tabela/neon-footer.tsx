@@ -6,6 +6,13 @@ const NAV_LINKS = [
   { label: 'İletişim', href: '#iletisim' },
 ];
 
+const SERVICE_LINKS = [
+  { label: 'Neon Tabela', href: '#hizmetlerimiz' },
+  { label: 'LED Tabela', href: '#hizmetlerimiz' },
+  { label: 'Elektronik Tabela', href: '#hizmetlerimiz' },
+  { label: 'Kutu Harf', href: '#hizmetlerimiz' },
+];
+
 const SOCIALS = [
   {
     label: 'Instagram',
@@ -38,41 +45,26 @@ const SOCIALS = [
 
 export function NeonFooter() {
   return (
-    <footer className="bg-gray-900">
-      {/* Neon accent line */}
-      <div
-        className="h-px w-full"
-        style={{
-          background: 'linear-gradient(90deg, transparent, #00f0ff, #ff006e, #39ff14, transparent)',
-          boxShadow: '0 0 10px rgba(0,240,255,0.5)',
-        }}
-      />
-
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-8 md:grid-cols-3">
-          {/* Logo & tagline */}
+    <footer className="bg-[#0f172a] text-white">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Column 1: Logo & description */}
           <div>
-            <h3
-              className="text-2xl font-bold text-[#00f0ff]"
-              style={{
-                textShadow: '0 0 7px #00f0ff, 0 0 10px #00f0ff, 0 0 21px #00f0ff',
-              }}
-            >
+            <h3 className="text-2xl font-bold text-white">
               Pars Tabela
             </h3>
-            <p className="mt-3 text-sm leading-relaxed text-gray-400">
-              Profesyonel neon tabela, LED tabela ve elektronik tabela çözümleri ile markanızı
-              parlatıyoruz.
+            <p className="mt-4 text-sm leading-relaxed text-gray-400">
+              Profesyonel tabela, LED aydınlatma ve reklam çözümleri ile markanızı
+              en iyi şekilde yansıtıyoruz. 15 yılı aşkın deneyimle hizmetinizdeyiz.
             </p>
-
             {/* Social icons */}
-            <div className="mt-5 flex gap-4">
+            <div className="mt-6 flex gap-4">
               {SOCIALS.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="text-gray-500 transition-colors hover:text-[#00f0ff]"
+                  className="text-gray-500 transition-colors hover:text-[#d4a843]"
                 >
                   {social.icon}
                 </a>
@@ -80,17 +72,17 @@ export function NeonFooter() {
             </div>
           </div>
 
-          {/* Quick links */}
+          {/* Column 2: Quick links */}
           <div>
             <h4 className="mb-4 text-sm font-semibold tracking-wider text-gray-300 uppercase">
-              Hızlı Bağlantılar
+              Hızlı Linkler
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {NAV_LINKS.map((link) => (
-                <li key={link.href}>
+                <li key={link.href + link.label}>
                   <a
                     href={link.href}
-                    className="text-sm text-gray-400 transition-colors hover:text-[#00f0ff]"
+                    className="text-sm text-gray-400 transition-colors hover:text-[#d4a843]"
                   >
                     {link.label}
                   </a>
@@ -99,25 +91,73 @@ export function NeonFooter() {
             </ul>
           </div>
 
-          {/* Contact info */}
+          {/* Column 3: Services */}
+          <div>
+            <h4 className="mb-4 text-sm font-semibold tracking-wider text-gray-300 uppercase">
+              Hizmetlerimiz
+            </h4>
+            <ul className="space-y-3">
+              {SERVICE_LINKS.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-gray-400 transition-colors hover:text-[#d4a843]"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 4: Contact info */}
           <div>
             <h4 className="mb-4 text-sm font-semibold tracking-wider text-gray-300 uppercase">
               İletişim
             </h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li>Organize Sanayi Bölgesi, 5. Cadde No:42</li>
-              <li>Ankara, Türkiye</li>
-              <li className="pt-2">+90 (312) 555 0123</li>
-              <li>info@parstabela.com</li>
+            <ul className="space-y-3 text-sm text-gray-400">
+              <li className="flex items-start gap-2">
+                <svg className="mt-0.5 h-4 w-4 shrink-0 text-[#d4a843]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Organize Sanayi Bölgesi, 5. Cadde No:42, Ankara</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <svg className="h-4 w-4 shrink-0 text-[#d4a843]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <span>+90 (312) 555 0123</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <svg className="h-4 w-4 shrink-0 text-[#d4a843]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span>info@parstabela.com</span>
+              </li>
             </ul>
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-12 border-t border-gray-800 pt-8 text-center">
-          <p className="text-sm text-gray-500">
-            &copy; 2024 Pars Tabela. Tüm hakları saklıdır.
-          </p>
+        {/* Divider + copyright */}
+        <div className="mt-12 border-t border-[#334155] pt-8">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <p className="text-sm text-gray-500">
+              &copy; 2024 Pars Tabela. Tüm hakları saklıdır.
+            </p>
+            <div className="flex gap-4">
+              {SOCIALS.map((social) => (
+                <a
+                  key={social.label + '-bottom'}
+                  href={social.href}
+                  aria-label={social.label}
+                  className="text-gray-500 transition-colors hover:text-[#d4a843]"
+                >
+                  {social.icon}
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </footer>

@@ -2,15 +2,6 @@
 
 import { motion } from 'framer-motion';
 
-const neonTextStyle = {
-  textShadow:
-    '0 0 7px #00f0ff, 0 0 10px #00f0ff, 0 0 21px #00f0ff, 0 0 42px #00f0ff, 0 0 82px #00f0ff, 0 0 92px #00f0ff',
-};
-
-const neonPinkStyle = {
-  textShadow: '0 0 7px #ff006e, 0 0 10px #ff006e, 0 0 21px #ff006e, 0 0 42px #ff006e',
-};
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -28,64 +19,48 @@ export function NeonHero() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gray-950"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-[#1a365d] to-[#0f172a]"
     >
-      {/* Neon flicker keyframes */}
-      <style>{`
-        @keyframes neonFlicker {
-          0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-            opacity: 1;
-            text-shadow: 0 0 7px #00f0ff, 0 0 10px #00f0ff, 0 0 21px #00f0ff, 0 0 42px #00f0ff, 0 0 82px #00f0ff;
-          }
-          20%, 24%, 55% {
-            opacity: 0.8;
-            text-shadow: none;
-          }
-        }
-        @keyframes gridPulse {
-          0%, 100% { opacity: 0.03; }
-          50% { opacity: 0.06; }
-        }
-      `}</style>
-
-      {/* Animated grid background */}
+      {/* Subtle geometric dot pattern */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 opacity-[0.04]"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(0,240,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,240,255,0.05) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-          animation: 'gridPulse 4s ease-in-out infinite',
+            'radial-gradient(circle, #ffffff 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
         }}
       />
 
-      {/* Radial glow behind title */}
-      <div className="pointer-events-none absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#00f0ff]/5 blur-3xl" />
+      {/* Soft gradient orbs */}
+      <div className="pointer-events-none absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-[#d4a843]/10 blur-3xl" />
+      <div className="pointer-events-none absolute right-1/4 bottom-1/4 h-80 w-80 rounded-full bg-[#1a365d]/30 blur-3xl" />
 
       <motion.div
-        className="relative z-10 px-4 text-center"
+        className="relative z-10 mx-auto max-w-4xl px-4 text-center"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         <motion.h1
-          className="mb-6 text-6xl font-extrabold tracking-tight text-[#00f0ff] sm:text-7xl lg:text-8xl"
-          style={{ ...neonTextStyle, animation: 'neonFlicker 3s infinite alternate' }}
+          className="mb-6 text-5xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl"
           variants={itemVariants}
         >
-          Pars Tabela
+          Profesyonel Tabela &amp; Reklam{' '}
+          <span className="text-[#d4a843]">Çözümleri</span>
         </motion.h1>
 
         <motion.p
-          className="mb-4 text-2xl font-semibold text-[#ff006e] sm:text-3xl"
-          style={neonPinkStyle}
+          className="mb-4 text-2xl font-semibold text-[#d4a843] sm:text-3xl"
           variants={itemVariants}
         >
           Işığınızla Fark Yaratın
         </motion.p>
 
-        <motion.p className="mb-10 text-lg text-gray-400 sm:text-xl" variants={itemVariants}>
-          Profesyonel Neon &amp; LED Tabela Çözümleri
+        <motion.p
+          className="mx-auto mb-10 max-w-2xl text-lg text-gray-300 sm:text-xl"
+          variants={itemVariants}
+        >
+          15 yılı aşkın deneyim ile markanızı en iyi şekilde yansıtan tabela çözümleri sunuyoruz
         </motion.p>
 
         <motion.div variants={itemVariants}>
@@ -95,10 +70,7 @@ export function NeonHero() {
               e.preventDefault();
               document.querySelector('#hizmetlerimiz')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="inline-block rounded-full border-2 border-[#00f0ff] px-8 py-3 text-lg font-semibold text-[#00f0ff] transition-all duration-300 hover:bg-[#00f0ff]/10"
-            style={{
-              boxShadow: '0 0 15px rgba(0,240,255,0.3), inset 0 0 15px rgba(0,240,255,0.1)',
-            }}
+            className="inline-block rounded-full bg-[#d4a843] px-8 py-3.5 text-lg font-semibold text-[#1a365d] transition-all duration-300 hover:scale-105 hover:bg-[#e0b854] hover:shadow-lg"
           >
             Hizmetlerimizi Keşfedin
           </a>
