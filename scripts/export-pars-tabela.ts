@@ -1,12 +1,8 @@
 /**
  * Export Pars Tabela as a standalone Next.js project and push to GitHub.
  *
- * This custom exporter copies actual source files rather than using
- * the generic component renderer, because Pars Tabela has:
- * - Custom neon-themed components
- * - Admin panel with product/category CRUD
- * - API routes for products, categories, upload, stats, contact
- * - Prisma models (Category, Product, ProductImage)
+ * Copies all source files, remaps public routes from /pars-tabela to /,
+ * generates standalone config, and publishes to GitHub.
  */
 
 import { mkdir, writeFile, readFile, cp, rm } from 'node:fs/promises';
@@ -52,7 +48,7 @@ function packageJson(): string {
   return JSON.stringify(
     {
       name: 'pars-tabela',
-      version: '1.0.0',
+      version: '2.0.0',
       private: true,
       scripts: {
         dev: 'next dev',
@@ -75,6 +71,9 @@ function packageJson(): string {
         '@auth/prisma-adapter': '^2.0.0',
         bcryptjs: '^3.0.0',
         zod: '^4.0.0',
+        'lucide-react': '^0.500.0',
+        recharts: '^2.15.0',
+        'react-hot-toast': '^2.5.0',
       },
       devDependencies: {
         '@tailwindcss/postcss': '^4.0.0',
@@ -137,6 +136,34 @@ export default config;
 `;
 
 const GLOBALS_CSS = `@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+#modal-root {
+  position: relative;
+  z-index: 9999;
+}
 `;
 
 const GITIGNORE = `node_modules/
@@ -156,119 +183,8 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/pars_tabela
 NEXTAUTH_SECRET=change-me-in-production
 NEXTAUTH_URL=http://localhost:3000
 
-# Domain (optional, for subdomain routing)
+# Domain (optional)
 ROOT_DOMAIN=localhost:3000
-`;
-
-const PRISMA_SCHEMA = `generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-}
-
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  password  String?
-  image     String?
-  isAdmin   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  accounts Account[]
-  sessions Session[]
-
-  @@index([email])
-}
-
-model Account {
-  id                String  @id @default(uuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(uuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-model VerificationToken {
-  identifier String
-  token      String @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model Category {
-  id          String    @id @default(uuid())
-  name        String
-  slug        String    @unique
-  description String?
-  order       Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  products Product[]
-
-  @@index([slug])
-}
-
-model Product {
-  id          String    @id @default(uuid())
-  name        String
-  description String?   @db.Text
-  price       Decimal?  @db.Decimal(10, 2)
-  categoryId  String
-  featured    Boolean   @default(false)
-  published   Boolean   @default(true)
-  order       Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  category Category       @relation(fields: [categoryId], references: [id])
-  images   ProductImage[]
-
-  @@index([categoryId])
-  @@index([published])
-  @@index([featured])
-}
-
-model ProductImage {
-  id        String   @id @default(uuid())
-  url       String
-  alt       String?
-  order     Int      @default(0)
-  productId String
-  createdAt DateTime @default(now())
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([productId])
-}
 `;
 
 const PRISMA_CONFIG = `import path from "node:path";
@@ -329,72 +245,13 @@ ENV PORT=3000
 CMD ["node", "server.js"]
 `;
 
-function generateReadme(): string {
-  return `# Pars Tabela
-
-Profesyonel neon tabela, LED tabela ve elektronik tabela çözümleri.
-
-## Quick Start
-
-\`\`\`bash
-# Start PostgreSQL
-docker compose -f docker-compose.dev.yml up -d
-
-# Install dependencies
-npm install
-
-# Setup database
-npx prisma db push
-npx prisma generate
-
-# Seed data (admin: admin@parstabela.com / admin123)
-npm run seed
-
-# Start development server
-npm run dev
-\`\`\`
-
-## Pages
-
-- **/** — Ana Sayfa (Neon hero, services, products, about, contact)
-- **/urunlerimiz** — Tüm Ürünler (filterable product gallery)
-- **/admin** — Admin Panel (login, dashboard, product/category management)
-
-## Tech Stack
-
-- Next.js 16 + React 19 + TypeScript
-- Tailwind CSS 4 + Framer Motion
-- PostgreSQL + Prisma ORM
-- NextAuth.js v5
-
-## Admin Panel
-
-Login at \`/admin/login\` with:
-- Email: \`admin@parstabela.com\`
-- Password: \`admin123\`
-
-Features: Dashboard stats, product CRUD, category management, image upload.
-
-## Docker
-
-\`\`\`bash
-docker compose up --build
-\`\`\`
-
----
-
-Built with [AI Website Builder](https://github.com/zedmarley2/ai-website-builder)
-`;
-}
-
-// Standalone layout (no platform wrapper, no Providers)
 const ROOT_LAYOUT = `import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Pars Tabela | Neon & Elektronik Tabela',
+  title: 'Pars Tabela | Profesyonel Tabela & Reklam Cozumleri',
   description:
-    'Profesyonel neon tabela, LED tabela ve elektronik tabela çözümleri. 15 yılı aşkın deneyim ile ışığınızla fark yaratın.',
+    'Profesyonel neon tabela, LED tabela ve elektronik tabela cozumleri. 15 yili askin deneyim ile isiginizla fark yaratin.',
 };
 
 export default function RootLayout({
@@ -403,14 +260,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className="dark" suppressHydrationWarning>
-      <body className="min-h-screen bg-gray-950 text-white antialiased">{children}</body>
+    <html lang="tr" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: \`(function(){try{var t=localStorage.getItem('pars-tabela-theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()\`,
+          }}
+        />
+      </head>
+      <body className="min-h-screen bg-gray-50 antialiased dark:bg-gray-950">{children}</body>
     </html>
   );
 }
 `;
 
-// Middleware for admin auth protection
 const MIDDLEWARE = `import { NextResponse, type NextRequest } from 'next/server';
 
 const SESSION_COOKIE = 'authjs.session-token';
@@ -438,6 +301,121 @@ export const config = {
 };
 `;
 
+function generateReadme(): string {
+  return `# Pars Tabela
+
+Profesyonel neon tabela, LED tabela ve elektronik tabela cozumleri.
+Premium admin panel ile teklif/siparis yonetimi, urun katalogu ve musteri iliskileri.
+
+## Quick Start
+
+\`\`\`bash
+# Start PostgreSQL
+docker compose -f docker-compose.dev.yml up -d
+
+# Install dependencies
+npm install
+
+# Setup database
+npx prisma db push
+npx prisma generate
+
+# Seed data (admin: admin@parstabela.com / admin123)
+npm run seed
+
+# Start development server
+npm run dev
+\`\`\`
+
+## Pages
+
+### Public Website
+- **/** — Ana Sayfa (Hero, hizmetler, urunler, hakkimizda, iletisim)
+- **/urunlerimiz** — Urun Galerisi (filtrelenebilir, kategorili)
+- **/urunlerimiz/[id]** — Urun Detayi (resim galerisi, teklif isteme)
+
+### Admin Panel
+- **/admin** — Dashboard (gelir grafikleri, istatistikler, pipeline)
+- **/admin/teklifler** — Teklifler & Siparisler (Kanban board + liste gorunumu)
+- **/admin/teklifler/[id]** — Teklif Detayi (kalemler, durum gecmisi, notlar)
+- **/admin/urunler** — Urun Yonetimi (CRUD, filtreleme, siralama)
+- **/admin/kategoriler** — Kategori Yonetimi (siralama, ekleme/duzenleme)
+- **/admin/siparisler** — Iletisim Talepleri (durum takibi)
+- **/admin/musteriler** — Musteri Listesi (toplu gorunum)
+- **/admin/medya** — Medya Kutuphanesi (yukleme, yonetim)
+- **/admin/ayarlar** — Site Ayarlari (genel, iletisim, sosyal, SEO, gorunum)
+
+## Features
+
+### Quote/Order Pipeline
+8-stage pipeline: Yeni Talep -> Teklif Hazirlandi -> Teklif Gonderildi -> Onaylandi -> Uretimde -> Teslime Hazir -> Teslim Edildi / Iptal
+
+- Kanban board with drag-and-drop columns
+- Auto-generated reference numbers (PT-YYYY-NNN)
+- Line items with auto-calculated KDV (18%)
+- Status timeline and internal notes
+- Real revenue tracking from delivered quotes
+
+### Admin Dashboard
+- Real-time revenue charts (monthly, from delivered quotes)
+- Pipeline summary with status counts
+- Product and inquiry statistics
+- Recent activity feed
+
+### Dark/Light Mode
+- Toggle between dark and light themes
+- Persisted in localStorage
+- All components support both modes
+
+## Tech Stack
+
+- Next.js 16 + React 19 + TypeScript
+- Tailwind CSS 4 + Framer Motion
+- PostgreSQL + Prisma v7 ORM
+- NextAuth.js v5 (Auth.js)
+- Recharts, Lucide React, React Hot Toast
+
+## Admin Login
+
+Email: \`admin@parstabela.com\`
+Password: \`admin123\`
+
+## Docker
+
+\`\`\`bash
+docker compose up --build
+\`\`\`
+
+---
+
+Built with [AI Website Builder](https://github.com/zedmarley2/ai-website-builder)
+`;
+}
+
+/**
+ * Read the actual Prisma schema and strip out platform-specific models
+ * (Website, Page, Component, Domain, DomainStatus) that belong to
+ * the generic website builder, not the standalone Pars Tabela project.
+ */
+async function generatePrismaSchema(): Promise<string> {
+  const fullSchema = await readFile(path.join(ROOT, 'prisma/schema.prisma'), 'utf-8');
+
+  // Remove platform-specific sections
+  let schema = fullSchema;
+
+  // Remove Website model and its relations
+  schema = schema.replace(/\/\/ -{10,}\n\/\/ Application Models\n\/\/ -{10,}\n[\s\S]*?(?=\/\/ -{10,}\n\/\/ Pars Tabela)/, '');
+
+  // Remove `websites Website[]` from User model
+  schema = schema.replace(/\n\s*websites\s+Website\[\]\n/, '\n');
+
+  // Remove quotes Quote[] @relation("QuoteProduct") won't hurt since we keep the Quote model
+  // But we need to keep the relation. Actually the Product model references Quote with @relation("QuoteProduct")
+  // and the Quote model references Product with @relation("QuoteProduct"), so both are kept.
+
+  return schema;
+}
+
 // ---------------------------------------------------------------------------
 // Main export logic
 // ---------------------------------------------------------------------------
@@ -452,6 +430,8 @@ async function main() {
 
     // 1. Write config files
     console.log('Writing config files...');
+    const prismaSchema = await generatePrismaSchema();
+
     await Promise.all([
       writeProjectFile(outDir, 'package.json', packageJson()),
       writeProjectFile(outDir, 'tsconfig.json', TSCONFIG),
@@ -459,7 +439,7 @@ async function main() {
       writeProjectFile(outDir, 'postcss.config.mjs', POSTCSS_CONFIG),
       writeProjectFile(outDir, '.gitignore', GITIGNORE),
       writeProjectFile(outDir, '.env.example', ENV_EXAMPLE),
-      writeProjectFile(outDir, 'prisma/schema.prisma', PRISMA_SCHEMA),
+      writeProjectFile(outDir, 'prisma/schema.prisma', prismaSchema),
       writeProjectFile(outDir, 'prisma.config.ts', PRISMA_CONFIG),
       writeProjectFile(outDir, 'docker-compose.dev.yml', DOCKER_COMPOSE_DEV),
       writeProjectFile(outDir, 'Dockerfile', DOCKERFILE),
@@ -470,22 +450,21 @@ async function main() {
       writeProjectFile(outDir, 'src/middleware.ts', MIDDLEWARE),
     ]);
 
-    // 2. Copy source files from the project
+    // 2. Copy source files
     console.log('Copying source files...');
 
-    // Files to copy directly (maintaining path structure under src/)
     const directCopies: Array<[string, string]> = [
       // Lib
       ['src/lib/prisma.ts', 'src/lib/prisma.ts'],
       ['src/lib/auth.ts', 'src/lib/auth.ts'],
       ['src/lib/admin-auth.ts', 'src/lib/admin-auth.ts'],
+      ['src/lib/settings.ts', 'src/lib/settings.ts'],
       // Types
       ['src/types/admin.ts', 'src/types/admin.ts'],
       // Seed script
       ['scripts/seed-pars-tabela.ts', 'scripts/seed.ts'],
     ];
 
-    // Directories to copy entirely
     const dirCopies: Array<[string, string]> = [
       // Public website components
       ['src/components/pars-tabela', 'src/components/pars-tabela'],
@@ -504,11 +483,10 @@ async function main() {
       ...dirCopies.map(([src, dest]) => copySourceFile(src, outDir, dest)),
     ]);
 
-    // 3. Copy page files - need to remap routes for standalone site
+    // 3. Copy and remap page routes
     console.log('Generating page routes...');
 
-    // The public site pages: pars-tabela/ → app root (/) in standalone
-    // Read source pages and remap
+    // Read public site pages
     const parsTabelaPage = await readFile(path.join(ROOT, 'src/app/pars-tabela/page.tsx'), 'utf-8');
     const parsTabelaLayout = await readFile(path.join(ROOT, 'src/app/pars-tabela/layout.tsx'), 'utf-8');
     const urunlerimizPage = await readFile(
@@ -516,53 +494,101 @@ async function main() {
       'utf-8'
     );
 
-    // Remove the layout metadata (it's in root layout now) and simplify
-    const standaloneLayout = parsTabelaLayout.replace(
-      /export const metadata[\s\S]*?};/,
-      ''
-    );
+    // Fix the layout: remove generateMetadata export (root layout handles it)
+    const standaloneLayout = parsTabelaLayout
+      .replace(/import \{ getSetting \} from.*\n/, '')
+      .replace(/export async function generateMetadata[\s\S]*?^}/m, '');
+
+    // Fix nav links: /pars-tabela → / in components
+    const fixedPage = parsTabelaPage;
 
     await Promise.all([
       // Main public pages at root
-      writeProjectFile(outDir, 'src/app/(public)/page.tsx', parsTabelaPage),
+      writeProjectFile(outDir, 'src/app/(public)/page.tsx', fixedPage),
       writeProjectFile(outDir, 'src/app/(public)/layout.tsx', standaloneLayout),
       writeProjectFile(outDir, 'src/app/(public)/urunlerimiz/page.tsx', urunlerimizPage),
-
-      // Admin pages - copy route groups
+      // Product detail page
+      copySourceFile(
+        'src/app/pars-tabela/urunlerimiz/[id]',
+        outDir,
+        'src/app/(public)/urunlerimiz/[id]'
+      ),
+      // Admin pages
       copySourceFile('src/app/(admin)', outDir, 'src/app/(admin)'),
       copySourceFile('src/app/(admin-auth)', outDir, 'src/app/(admin-auth)'),
     ]);
 
-    // 4. Create the auth registration route
-    console.log('Copying auth registration route...');
-    await copySourceFile('src/app/api/auth/register', outDir, 'src/app/api/auth/register');
+    // 4. Fix component route references (pars-tabela → root)
+    console.log('Fixing route references...');
 
-    // 5. Fix seed script import path for standalone (no import from ../src/lib)
-    const seedContent = await readFile(path.join(outDir, 'scripts/seed.ts'), 'utf-8');
-    // The seed script creates its own PrismaClient, so it should work as-is.
+    // Fix neon-header nav paths
+    const headerPath = path.join(outDir, 'src/components/pars-tabela/neon-header.tsx');
+    let headerContent = await readFile(headerPath, 'utf-8');
+    headerContent = headerContent
+      .replace(/\/pars-tabela#/g, '/#')
+      .replace(/\/pars-tabela/g, '/')
+      .replace(/pathname === '\/'/g, "pathname === '/'");
+    await writeFile(headerPath, headerContent, 'utf-8');
 
-    // 6. Publish to GitHub
+    // Fix product-detail breadcrumb links
+    const productDetailPath = path.join(outDir, 'src/components/pars-tabela/product-detail.tsx');
+    let productDetailContent = await readFile(productDetailPath, 'utf-8');
+    productDetailContent = productDetailContent
+      .replace(/\/pars-tabela\/urunlerimiz/g, '/urunlerimiz')
+      .replace(/\/pars-tabela/g, '/');
+    await writeFile(productDetailPath, productDetailContent, 'utf-8');
+
+    // Fix products-gallery links
+    const galleryPath = path.join(outDir, 'src/components/pars-tabela/products-gallery.tsx');
+    let galleryContent = await readFile(galleryPath, 'utf-8');
+    galleryContent = galleryContent.replace(/\/pars-tabela\/urunlerimiz/g, '/urunlerimiz');
+    await writeFile(galleryPath, galleryContent, 'utf-8');
+
+    // Fix neon-footer external link
+    const footerPath = path.join(outDir, 'src/components/pars-tabela/neon-footer.tsx');
+    let footerContent = await readFile(footerPath, 'utf-8');
+    footerContent = footerContent.replace(/\/pars-tabela/g, '/');
+    await writeFile(footerPath, footerContent, 'utf-8');
+
+    // Fix sidebar "Siteyi Gor" link
+    const sidebarPath = path.join(outDir, 'src/components/admin/sidebar.tsx');
+    let sidebarContent = await readFile(sidebarPath, 'utf-8');
+    sidebarContent = sidebarContent.replace(/href="\/pars-tabela"/g, 'href="/"');
+    await writeFile(sidebarPath, sidebarContent, 'utf-8');
+
+    // 5. Publish to GitHub
     console.log('Publishing to GitHub...');
 
-    // Check gh auth
     try {
       await run('gh', ['auth', 'status'], outDir);
     } catch {
       throw new Error('GitHub CLI (gh) is not authenticated. Run `gh auth login` first.');
     }
 
-    // Init git repo
     await run('git', ['init'], outDir);
     await run('git', ['add', '-A'], outDir);
     await run(
       'git',
-      ['commit', '-m', 'Initial commit: Pars Tabela — exported from AI Website Builder'],
+      [
+        'commit',
+        '-m',
+        'feat: Pars Tabela v2.0 — full admin panel, quote pipeline, dark mode',
+      ],
       outDir
     );
 
-    // Create GitHub repo (handle name collision)
+    // Try to delete existing repo and recreate, or create new
     let repoName = REPO_NAME;
-    const description = 'Pars Tabela — Profesyonel neon tabela, LED tabela ve elektronik tabela çözümleri';
+    const description =
+      'Pars Tabela — Profesyonel tabela & reklam cozumleri. Admin panel, teklif/siparis pipeline, urun katalogu.';
+
+    try {
+      // Try deleting existing repo first
+      await run('gh', ['repo', 'delete', `${GITHUB_OWNER}/${repoName}`, '--yes'], outDir);
+      console.log('Deleted existing repo, recreating...');
+    } catch {
+      // Repo may not exist, that's fine
+    }
 
     try {
       await run(
@@ -581,10 +607,10 @@ async function main() {
         outDir
       );
     } catch {
-      // Repo name likely taken — append suffix
+      // If create fails, try with suffix
       const suffix = crypto.randomBytes(2).toString('hex');
       repoName = `${REPO_NAME}-${suffix}`;
-      console.log(`Repo name taken, trying: ${repoName}`);
+      console.log(`Creating with name: ${repoName}`);
 
       await run(
         'gh',
@@ -610,7 +636,6 @@ async function main() {
     console.log(`Repo Name: ${repoName}`);
     console.log('========================================\n');
   } finally {
-    // Cleanup
     await rm(outDir, { recursive: true, force: true }).catch(() => {});
   }
 }
