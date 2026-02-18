@@ -31,6 +31,16 @@ export async function POST(request: Request) {
       },
     });
 
+    // Create a notification for admin
+    await prisma.notification.create({
+      data: {
+        title: 'Yeni İletişim Talebi',
+        message: `${name} yeni bir mesaj gönderdi: ${message.slice(0, 100)}`,
+        type: 'inquiry',
+        link: '/admin/siparisler',
+      },
+    });
+
     return NextResponse.json({
       data: { message: 'Your message has been received. We will get back to you soon.' },
     });

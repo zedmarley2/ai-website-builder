@@ -297,6 +297,55 @@ async function main() {
     console.log(`Inquiry: ${inq.name} - ${inq.status}`);
   }
 
+  // 8. Seed sample notifications
+  const notificationsData = [
+    {
+      title: 'Yeni İletişim Talebi',
+      message: 'Mehmet Yılmaz yeni bir mesaj gönderdi: Mağazamız için LED tabela yaptırmak istiyoruz...',
+      type: 'inquiry',
+      read: false,
+      link: '/admin/siparisler',
+      createdAt: new Date(Date.now() - 5 * 60 * 1000),
+    },
+    {
+      title: 'Yeni Teklif Talebi',
+      message: 'Fatma Özkan bir ürün için teklif istedi: Kutu harf uygulaması için bilgi almak istiyorum...',
+      type: 'inquiry',
+      read: false,
+      link: '/admin/siparisler',
+      createdAt: new Date(Date.now() - 30 * 60 * 1000),
+    },
+    {
+      title: 'Ürün Güncellendi',
+      message: 'Klasik Neon Tabela ürünü başarıyla güncellendi.',
+      type: 'product',
+      read: false,
+      link: '/admin/urunler',
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    },
+    {
+      title: 'Yeni İletişim Talebi',
+      message: 'Ali Kaya yeni bir mesaj gönderdi: Fabrikamız için totem tabela yaptırmak istiyoruz...',
+      type: 'inquiry',
+      read: true,
+      link: '/admin/siparisler',
+      createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
+    },
+    {
+      title: 'Sistem Güncellemesi',
+      message: 'Yönetim paneli başarıyla güncellendi. Yeni özellikler kullanıma hazır.',
+      type: 'system',
+      read: true,
+      link: null,
+      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    },
+  ];
+
+  for (const notif of notificationsData) {
+    await prisma.notification.create({ data: notif });
+  }
+  console.log(`Notifications: ${notificationsData.length} samples created`);
+
   console.log('\nSeed completed successfully!');
   console.log('Admin login: admin@parstabela.com / admin123');
 }
