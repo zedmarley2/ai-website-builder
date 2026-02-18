@@ -76,6 +76,7 @@ export async function generateProject(options: ProjectGeneratorOptions): Promise
       'src/data/website.json',
       JSON.stringify(sanitizeWebsiteData(website), null, 2)
     ),
+    writeProjectFile(outputDir, 'src/components/motion-wrapper.tsx', COMP_MOTION_WRAPPER),
     writeProjectFile(outputDir, 'src/components/component-renderer.tsx', COMPONENT_RENDERER),
     writeProjectFile(outputDir, 'src/components/header.tsx', COMP_HEADER),
     writeProjectFile(outputDir, 'src/components/hero.tsx', COMP_HERO),
@@ -141,6 +142,7 @@ function generatePackageJson(name: string): string {
         next: '^15.0.0',
         react: '^19.0.0',
         'react-dom': '^19.0.0',
+        'framer-motion': '^12.0.0',
       },
       devDependencies: {
         '@tailwindcss/postcss': '^4.0.0',
@@ -242,10 +244,41 @@ export default function RootLayout({
 }
 
 // ---------------------------------------------------------------------------
+// Motion Wrapper
+// ---------------------------------------------------------------------------
+
+const COMP_MOTION_WRAPPER = `'use client';
+
+import { motion } from 'framer-motion';
+import type { ReactNode } from 'react';
+
+interface MotionWrapperProps {
+  children: ReactNode;
+  index?: number;
+}
+
+export function MotionWrapper({ children, index = 0 }: MotionWrapperProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+`;
+
+// ---------------------------------------------------------------------------
 // Component Renderer
 // ---------------------------------------------------------------------------
 
-const COMPONENT_RENDERER = `import { Header } from './header';
+const COMPONENT_RENDERER = `'use client';
+
+import { MotionWrapper } from './motion-wrapper';
+import { Header } from './header';
 import { Hero } from './hero';
 import { Footer } from './footer';
 import { Section } from './section';
@@ -266,6 +299,7 @@ interface ComponentProps {
     props: Record<string, unknown>;
     styles: Record<string, unknown>;
   };
+  index?: number;
 }
 
 const componentMap: Record<
@@ -298,7 +332,7 @@ const componentMap: Record<
   Image: ImageBlock,
 };
 
-export function ComponentRenderer({ component }: ComponentProps) {
+export function ComponentRenderer({ component, index = 0 }: ComponentProps) {
   const Component = componentMap[component.type];
 
   if (!Component) {
@@ -309,7 +343,11 @@ export function ComponentRenderer({ component }: ComponentProps) {
     );
   }
 
-  return <Component props={component.props} styles={component.styles} />;
+  return (
+    <MotionWrapper index={index}>
+      <Component props={component.props} styles={component.styles} />
+    </MotionWrapper>
+  );
 }
 `;
 
@@ -317,7 +355,9 @@ export function ComponentRenderer({ component }: ComponentProps) {
 // Page Templates
 // ---------------------------------------------------------------------------
 
-const HOME_PAGE = `import websiteData from '@/data/website.json';
+const HOME_PAGE = `'use client';
+
+import websiteData from '@/data/website.json';
 import { ComponentRenderer } from '@/components/component-renderer';
 
 export default function HomePage() {
@@ -334,8 +374,8 @@ export default function HomePage() {
 
   return (
     <main>
-      {homePage.components.map((component) => (
-        <ComponentRenderer key={component.id} component={component} />
+      {homePage.components.map((component, i) => (
+        <ComponentRenderer key={component.id} component={component} index={i} />
       ))}
     </main>
   );
@@ -364,8 +404,8 @@ export default async function DynamicPage({
 
   return (
     <main>
-      {page.components.map((component) => (
-        <ComponentRenderer key={component.id} component={component} />
+      {page.components.map((component, i) => (
+        <ComponentRenderer key={component.id} component={component} index={i} />
       ))}
     </main>
   );
@@ -625,7 +665,9 @@ export function Pricing({ props, styles }: PricingProps) {
 }
 `;
 
-const COMP_CONTACT = `interface ContactProps {
+const COMP_CONTACT = `'use client';
+
+interface ContactProps {
   props: Record<string, unknown>;
   styles: Record<string, unknown>;
 }
