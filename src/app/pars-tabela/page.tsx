@@ -6,6 +6,7 @@ import { ProductsGallery } from '@/components/pars-tabela/products-gallery';
 import { AboutSection } from '@/components/pars-tabela/about-section';
 import { ContactSection } from '@/components/pars-tabela/contact-section';
 import { NeonFooter } from '@/components/pars-tabela/neon-footer';
+import { ScrollToTop } from '@/components/pars-tabela/scroll-to-top';
 
 export default async function ParsTabelaPage() {
   const [categories, featuredProducts] = await Promise.all([
@@ -40,6 +41,7 @@ export default async function ParsTabelaPage() {
         <ContactSection />
       </main>
       <NeonFooter />
+      <ScrollToTop />
     </>
   );
 }

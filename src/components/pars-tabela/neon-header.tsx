@@ -38,17 +38,48 @@ export function NeonHeader() {
     <header
       className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-white/80 shadow-sm backdrop-blur-md dark:bg-[#0f172a]/80'
-          : 'bg-transparent'
+          ? 'bg-white/95 shadow-md backdrop-blur-md dark:bg-[#0f172a]/95'
+          : 'bg-white/70 backdrop-blur-sm dark:bg-[#0f172a]/70'
       }`}
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <a
           href="#hero"
           onClick={(e) => handleNavClick(e, '#hero')}
-          className="text-2xl font-bold text-[#1a365d] dark:text-white"
+          className="flex items-center gap-3"
         >
-          Pars Tabela
+          {/* SVG Logo */}
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M20 2L36 11V29L20 38L4 29V11L20 2Z"
+              className="fill-[#1a365d] dark:fill-[#d4a843]"
+            />
+            <path
+              d="M20 5L33.5 12.5V27.5L20 35L6.5 27.5V12.5L20 5Z"
+              className="fill-white dark:fill-[#0f172a]"
+            />
+            <path
+              d="M20 8L31 14.5V25.5L20 32L9 25.5V14.5L20 8Z"
+              className="fill-[#1a365d] dark:fill-[#d4a843]"
+            />
+            <text
+              x="20"
+              y="24"
+              textAnchor="middle"
+              className="fill-white dark:fill-[#0f172a]"
+              style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'system-ui, sans-serif' }}
+            >
+              P
+            </text>
+          </svg>
+          <div className="flex flex-col">
+            <span className="text-lg font-bold leading-tight text-[#1a365d] dark:text-white">
+              Pars Tabela
+            </span>
+            <span className="text-[10px] font-medium tracking-widest text-[#d4a843] uppercase">
+              Profesyonel Tabela
+            </span>
+          </div>
         </a>
 
         {/* Desktop nav */}
