@@ -52,6 +52,7 @@ export const contactFormSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().max(20).optional(),
   message: z.string().min(1, 'Message is required').max(2000),
+  productId: z.string().uuid().optional(),
 });
 
 // ---------------------------------------------------------------------------

@@ -1,12 +1,18 @@
-import type { Metadata } from 'next';
+import { getSetting } from '@/lib/settings';
 import { ThemeProvider } from '@/components/pars-tabela/theme-provider';
 import { ToastProvider } from '@/components/pars-tabela/toast';
 
-export const metadata: Metadata = {
-  title: 'Pars Tabela | Profesyonel Tabela & Reklam Çözümleri',
-  description:
-    'Profesyonel neon tabela, LED tabela ve elektronik tabela çözümleri. 15 yılı aşkın deneyim ile ışığınızla fark yaratın.',
-};
+export async function generateMetadata() {
+  const [title, description] = await Promise.all([
+    getSetting('meta_title'),
+    getSetting('meta_description'),
+  ]);
+
+  return {
+    title: title || 'Pars Tabela | Profesyonel Tabela & Reklam Çözümleri',
+    description: description || 'Profesyonel neon tabela, LED tabela ve elektronik tabela çözümleri.',
+  };
+}
 
 export default function ParsTabelaLayout({ children }: { children: React.ReactNode }) {
   return (

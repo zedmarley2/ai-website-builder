@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
-import { AdminSidebar } from '@/components/admin/sidebar';
+import { AdminLayoutClient } from '@/components/admin/admin-layout-client';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -26,14 +26,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     );
   }
 
+  const userName = user.name ?? 'Admin';
+  const userEmail = user.email ?? '';
+
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#0f172a]">
-      <AdminSidebar userName={user.name ?? user.email ?? 'Admin'} />
-      <main className="transition-all duration-300 lg:pl-64">
-        <div className="mx-auto max-w-7xl p-4 pt-16 sm:p-6 lg:pt-6">
-          {children}
-        </div>
-      </main>
-    </div>
+    <AdminLayoutClient userName={userName} userEmail={userEmail}>
+      {children}
+    </AdminLayoutClient>
   );
 }

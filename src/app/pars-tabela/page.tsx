@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { getAllSettings } from '@/lib/settings';
 import { NeonHeader } from '@/components/pars-tabela/neon-header';
 import { NeonHero } from '@/components/pars-tabela/neon-hero';
 import { ServicesSection } from '@/components/pars-tabela/services-section';
@@ -9,7 +10,7 @@ import { NeonFooter } from '@/components/pars-tabela/neon-footer';
 import { ScrollToTop } from '@/components/pars-tabela/scroll-to-top';
 
 export default async function ParsTabelaPage() {
-  const [categories, featuredProducts] = await Promise.all([
+  const [categories, featuredProducts, settings] = await Promise.all([
     prisma.category.findMany({
       orderBy: { order: 'asc' },
       select: { id: true, name: true, slug: true },
@@ -23,6 +24,7 @@ export default async function ParsTabelaPage() {
       take: 8,
       orderBy: { createdAt: 'desc' },
     }),
+    getAllSettings(),
   ]);
 
   const serializedProducts = featuredProducts.map((p) => ({
@@ -38,9 +40,9 @@ export default async function ParsTabelaPage() {
         <ServicesSection />
         <ProductsGallery products={serializedProducts} categories={categories} />
         <AboutSection />
-        <ContactSection />
+        <ContactSection contact={settings.contact} />
       </main>
-      <NeonFooter />
+      <NeonFooter contact={settings.contact} social={settings.social} general={settings.general} />
       <ScrollToTop />
     </>
   );

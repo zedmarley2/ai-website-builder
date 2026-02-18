@@ -1,21 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/components/pars-tabela/theme-provider';
 
 const NAV_ITEMS = [
-  { label: 'Ana Sayfa', href: '#hero' },
-  { label: 'Hizmetlerimiz', href: '#hizmetlerimiz' },
-  { label: 'Ürünlerimiz', href: '#urunlerimiz' },
-  { label: 'Hakkımızda', href: '#hakkimizda' },
-  { label: 'İletişim', href: '#iletisim' },
+  { label: 'Ana Sayfa', href: '#hero', path: '/pars-tabela' },
+  { label: 'Hizmetlerimiz', href: '#hizmetlerimiz', path: '/pars-tabela#hizmetlerimiz' },
+  { label: 'Ürünlerimiz', href: '#urunlerimiz', path: '/pars-tabela#urunlerimiz' },
+  { label: 'Hakkımızda', href: '#hakkimizda', path: '/pars-tabela#hakkimizda' },
+  { label: 'İletişim', href: '#iletisim', path: '/pars-tabela#iletisim' },
 ];
 
 export function NeonHeader() {
   const { theme, toggleTheme } = useTheme();
+  const pathname = usePathname();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const isMainPage = pathname === '/pars-tabela';
 
   useEffect(() => {
     function handleScroll() {
@@ -25,12 +30,33 @@ export function NeonHeader() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
+  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, item: typeof NAV_ITEMS[number]) {
     e.preventDefault();
     setMobileMenuOpen(false);
-    const target = document.querySelector(href);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
+
+    if (isMainPage) {
+      // On main page: smooth scroll to anchor
+      if (item.href === '#hero') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        const target = document.querySelector(item.href);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    } else {
+      // On sub-pages: navigate to main page with anchor
+      router.push(item.path);
+    }
+  }
+
+  function handleLogoClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    if (isMainPage) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      router.push('/pars-tabela');
     }
   }
 
@@ -44,8 +70,8 @@ export function NeonHeader() {
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <a
-          href="#hero"
-          onClick={(e) => handleNavClick(e, '#hero')}
+          href="/pars-tabela"
+          onClick={handleLogoClick}
           className="flex items-center gap-3"
         >
           {/* SVG Logo */}
@@ -87,8 +113,8 @@ export function NeonHeader() {
           {NAV_ITEMS.map((item) => (
             <li key={item.href}>
               <a
-                href={item.href}
-                onClick={(e) => handleNavClick(e, item.href)}
+                href={isMainPage ? item.href : item.path}
+                onClick={(e) => handleNavClick(e, item)}
                 className="text-sm font-medium text-[#1f2937] transition-colors hover:text-[#1a365d] dark:text-gray-300 dark:hover:text-[#d4a843]"
               >
                 {item.label}
@@ -169,8 +195,8 @@ export function NeonHeader() {
                 {NAV_ITEMS.map((item) => (
                   <li key={item.href}>
                     <a
-                      href={item.href}
-                      onClick={(e) => handleNavClick(e, item.href)}
+                      href={isMainPage ? item.href : item.path}
+                      onClick={(e) => handleNavClick(e, item)}
                       className="text-lg font-medium text-[#1f2937] transition-colors hover:text-[#1a365d] dark:text-gray-300 dark:hover:text-[#d4a843]"
                     >
                       {item.label}

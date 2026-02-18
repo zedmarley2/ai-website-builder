@@ -180,6 +180,7 @@ model Product {
 
   category    Category       @relation(fields: [categoryId], references: [id])
   images      ProductImage[]
+  inquiries   Inquiry[]
 
   @@index([categoryId])
   @@index([published])
@@ -197,4 +198,50 @@ model ProductImage {
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
+}
+
+// ---------------------------------------------------------------------------
+// Inquiry / Contact Form Submissions
+// ---------------------------------------------------------------------------
+
+enum InquiryStatus {
+  NEW
+  IN_REVIEW
+  REPLIED
+  CLOSED
+}
+
+model Inquiry {
+  id        String        @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  message   String        @db.Text
+  productId String?
+  status    InquiryStatus @default(NEW)
+  notes     String?       @db.Text
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  product   Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Site Settings (key-value store)
+// ---------------------------------------------------------------------------
+
+model SiteSettings {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String   @db.Text
+  group     String   @default("general")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([group])
+  @@index([key])
 }

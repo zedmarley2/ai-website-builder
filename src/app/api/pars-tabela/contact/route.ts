@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 import { contactFormSchema } from '@/types/admin';
 
 /**
  * POST /api/pars-tabela/contact
- * Public contact form submission.
+ * Public contact form submission — saves to Inquiry table.
  */
 export async function POST(request: Request) {
   try {
@@ -17,10 +18,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, phone, message } = validation.data;
+    const { name, email, phone, message, productId } = validation.data;
 
-    // Log to console for now; email sending can be added later
-    console.warn('[Contact Form]', { name, email, phone, message, timestamp: new Date().toISOString() });
+    await prisma.inquiry.create({
+      data: {
+        name,
+        email,
+        phone: phone || null,
+        message,
+        productId: productId || null,
+        status: 'NEW',
+      },
+    });
 
     return NextResponse.json({
       data: { message: 'Your message has been received. We will get back to you soon.' },

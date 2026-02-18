@@ -198,6 +198,105 @@ async function main() {
     }
   }
 
+  // 6. Seed default site settings
+  const defaultSettings = [
+    // General
+    { key: 'site_name', value: 'Pars Tabela', group: 'general' },
+    { key: 'site_description', value: 'Profesyonel neon tabela, LED tabela ve elektronik tabela çözümleri. 15 yılı aşkın deneyim ile ışığınızla fark yaratın.', group: 'general' },
+    { key: 'footer_text', value: '© 2024 Pars Tabela. Tüm hakları saklıdır.', group: 'general' },
+
+    // Contact
+    { key: 'company_name', value: 'Pars Tabela Reklam ve Tabelacılık', group: 'contact' },
+    { key: 'address', value: 'Organize Sanayi Bölgesi, 12. Cadde No:8, Isparta, Türkiye', group: 'contact' },
+    { key: 'phone', value: '+90 (246) 555 0123', group: 'contact' },
+    { key: 'email', value: 'info@parstabela.com', group: 'contact' },
+    { key: 'maps_url', value: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d99942.0!2d30.28!3d37.76!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14c5b0a7f5e9!2sIsparta!5e0!3m2!1str!2str!4v1', group: 'contact' },
+    { key: 'working_hours_weekday', value: 'Pazartesi - Cuma: 08:00 - 18:00', group: 'contact' },
+    { key: 'working_hours_saturday', value: 'Cumartesi: 09:00 - 14:00', group: 'contact' },
+    { key: 'working_hours_sunday', value: 'Pazar: Kapalı', group: 'contact' },
+
+    // Social
+    { key: 'instagram', value: 'https://instagram.com/parstabela', group: 'social' },
+    { key: 'facebook', value: 'https://facebook.com/parstabela', group: 'social' },
+    { key: 'twitter', value: '', group: 'social' },
+    { key: 'youtube', value: '', group: 'social' },
+    { key: 'linkedin', value: '', group: 'social' },
+    { key: 'whatsapp', value: '+902465550123', group: 'social' },
+
+    // SEO
+    { key: 'meta_title', value: 'Pars Tabela | Profesyonel Tabela & Reklam Çözümleri', group: 'seo' },
+    { key: 'meta_description', value: 'Isparta ve çevresinde profesyonel neon tabela, LED tabela, kutu harf ve elektronik tabela çözümleri. 15 yılı aşkın deneyim.', group: 'seo' },
+    { key: 'google_analytics_id', value: '', group: 'seo' },
+    { key: 'google_search_console', value: '', group: 'seo' },
+
+    // Appearance
+    { key: 'primary_color', value: '#1a365d', group: 'appearance' },
+    { key: 'secondary_color', value: '#d4a843', group: 'appearance' },
+    { key: 'font', value: 'Inter', group: 'appearance' },
+    { key: 'header_style', value: 'glass', group: 'appearance' },
+  ];
+
+  for (const setting of defaultSettings) {
+    await prisma.siteSettings.upsert({
+      where: { key: setting.key },
+      update: { value: setting.value, group: setting.group },
+      create: setting,
+    });
+  }
+  console.log(`Site settings: ${defaultSettings.length} defaults created`);
+
+  // 7. Seed sample inquiries
+  // Grab some product IDs for linking
+  const sampleProducts = await prisma.product.findMany({ take: 3, select: { id: true, name: true } });
+
+  const inquiriesData = [
+    {
+      name: 'Mehmet Yılmaz',
+      email: 'mehmet@example.com',
+      phone: '+90 532 111 2233',
+      message: 'Mağazamız için LED tabela yaptırmak istiyoruz. Yaklaşık 3x1 metre boyutlarında olacak. Fiyat teklifi alabilir miyiz?',
+      productId: sampleProducts[0]?.id ?? null,
+      status: 'NEW' as const,
+    },
+    {
+      name: 'Ayşe Demir',
+      email: 'ayse.demir@example.com',
+      phone: '+90 505 444 5566',
+      message: 'Yeni açılacak restoranımız için neon tabela ve dijital menü panosu fiyat bilgisi almak istiyorum.',
+      productId: null,
+      status: 'IN_REVIEW' as const,
+    },
+    {
+      name: 'Ali Kaya',
+      email: 'ali.kaya@example.com',
+      phone: '+90 542 777 8899',
+      message: 'Fabrikamız için totem tabela yaptırmak istiyoruz. Toplamda 3 adet, 4 metre yüksekliğinde. Kurulum dahil fiyat verebilir misiniz?',
+      productId: sampleProducts[2]?.id ?? null,
+      status: 'REPLIED' as const,
+    },
+    {
+      name: 'Fatma Özkan',
+      email: 'fatma@example.com',
+      phone: null,
+      message: 'Kutu harf uygulaması için bilgi almak istiyorum. Paslanmaz çelik tercih ediyorum.',
+      productId: sampleProducts[1]?.id ?? null,
+      status: 'NEW' as const,
+    },
+    {
+      name: 'Mehmet Yılmaz',
+      email: 'mehmet@example.com',
+      phone: '+90 532 111 2233',
+      message: 'Önceki talebime ek olarak, iç mekan yönlendirme tabelaları da istiyoruz. Toplam 10 adet.',
+      productId: null,
+      status: 'NEW' as const,
+    },
+  ];
+
+  for (const inq of inquiriesData) {
+    await prisma.inquiry.create({ data: inq });
+    console.log(`Inquiry: ${inq.name} - ${inq.status}`);
+  }
+
   console.log('\nSeed completed successfully!');
   console.log('Admin login: admin@parstabela.com / admin123');
 }
