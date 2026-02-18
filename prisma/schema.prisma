@@ -82,11 +82,34 @@ model Website {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  pages Page[]
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages   Page[]
+  domains Domain[]
 
   @@index([userId])
   @@index([subdomain])
+}
+
+enum DomainStatus {
+  PENDING
+  VERIFIED
+  FAILED
+}
+
+model Domain {
+  id            String       @id @default(uuid())
+  domain        String       @unique
+  status        DomainStatus @default(PENDING)
+  websiteId     String
+  verifiedAt    DateTime?
+  lastCheckedAt DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId])
+  @@index([domain])
 }
 
 model Page {

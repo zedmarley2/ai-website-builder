@@ -1,12 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { Providers } from '@/components/providers';
 import './globals.css';
-
-const inter = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'AI Website Builder',
@@ -21,12 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} min-h-screen bg-gray-50 font-sans antialiased dark:bg-gray-950`}
-      >
-        <Providers>{children}</Providers>
-        <div id="modal-root" />
-      </body>
+      <body className="min-h-screen bg-gray-50 antialiased dark:bg-gray-950">{children}</body>
     </html>
   );
 }

@@ -154,3 +154,39 @@ export interface ExportResult {
   repoUrl: string;
   repoName: string;
 }
+
+// ---------------------------------------------------------------------------
+// Domain Schemas & Types
+// ---------------------------------------------------------------------------
+
+export const addDomainSchema = z.object({
+  domain: z
+    .string()
+    .min(4, 'Domain must be at least 4 characters')
+    .max(253, 'Domain must be 253 characters or fewer')
+    .regex(
+      /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/,
+      'Must be a valid domain name (e.g., www.example.com)'
+    )
+    .transform((d) => d.toLowerCase()),
+});
+
+export type AddDomainInput = z.infer<typeof addDomainSchema>;
+
+export type DomainStatus = 'PENDING' | 'VERIFIED' | 'FAILED';
+
+export interface DomainData {
+  id: string;
+  domain: string;
+  status: DomainStatus;
+  websiteId: string;
+  verifiedAt: string | null;
+  lastCheckedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DomainVerifyResponse {
+  verified: boolean;
+  status: DomainStatus;
+}
