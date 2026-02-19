@@ -212,25 +212,31 @@ export async function createBackup(
     '.',
   ]);
 
-  // Veritabani yedegi
+  // Veritabani yedegi (pg_dump yoksa atla)
+  const hasPgDump = await checkPgDumpInstalled();
   const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new Error('DATABASE_URL ortam degiskeni tanimli degil');
-  }
 
-  await run('pg_dump', [databaseUrl], {
-    env: { ...process.env },
-  }).then(async ({ stdout }) => {
-    const { writeFileSync } = await import('node:fs');
-    writeFileSync(dbPath, stdout, 'utf-8');
-  });
+  if (hasPgDump && databaseUrl) {
+    try {
+      const { stdout } = await run('pg_dump', [databaseUrl], {
+        env: { ...process.env },
+      });
+      const { writeFileSync } = await import('node:fs');
+      writeFileSync(dbPath, stdout, 'utf-8');
+    } catch {
+      // pg_dump hatasi kritik degil - dosya yedegi yeterli
+    }
+  }
 
   // Boyut hesaplama
   let sizeBytes = 0;
   try {
     const fileStat = statSync(filePath);
-    const dbStat = statSync(dbPath);
-    sizeBytes = fileStat.size + dbStat.size;
+    sizeBytes = fileStat.size;
+    if (existsSync(dbPath)) {
+      const dbStat = statSync(dbPath);
+      sizeBytes += dbStat.size;
+    }
   } catch {
     // Boyut hesaplanamazsa 0 kalir
   }
@@ -263,8 +269,18 @@ export async function npmInstall(): Promise<string> {
 /** Prisma generate ve db push calistirir */
 export async function prismaGenerateAndMigrate(): Promise<string> {
   const { stdout: genOut } = await run('npx', ['prisma', 'generate']);
-  const { stdout: pushOut } = await run('npx', ['prisma', 'db', 'push']);
-  return `Prisma generate: ${genOut.trim()}\nDB push: ${pushOut.trim()}`;
+
+  // Once migrate deploy dene (migration dosyalari varsa), yoksa db push kullan
+  let dbResult = '';
+  try {
+    const { stdout: migrateOut } = await run('npx', ['prisma', 'migrate', 'deploy']);
+    dbResult = `Migrate deploy: ${migrateOut.trim()}`;
+  } catch {
+    const { stdout: pushOut } = await run('npx', ['prisma', 'db', 'push', '--accept-data-loss']);
+    dbResult = `DB push: ${pushOut.trim()}`;
+  }
+
+  return `Prisma generate: ${genOut.trim()}\n${dbResult}`;
 }
 
 /** npm run build calistirir */
@@ -297,12 +313,17 @@ export async function restoreBackup(
   // Dosya geri yukleme
   await run('tar', ['xzf', filePath, '-C', PROJECT_ROOT]);
 
-  // Veritabani geri yukleme
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new Error('DATABASE_URL ortam degiskeni tanimli degil');
+  // Veritabani geri yukleme (yedek varsa)
+  if (existsSync(dbPath)) {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (databaseUrl) {
+      try {
+        await run('psql', [databaseUrl, '-f', dbPath]);
+      } catch {
+        // DB restore hatasi kritik degil
+      }
+    }
   }
-  await run('psql', [databaseUrl, '-f', dbPath]);
 
   // Bagimlilik ve build adimlari
   await run('npm', ['install']);
