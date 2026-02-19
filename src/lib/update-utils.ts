@@ -289,8 +289,10 @@ export async function prismaGenerateAndMigrate(): Promise<string> {
   return `Prisma generate: ${genOut.trim()}\n${dbResult}`;
 }
 
-/** npm run build calistirir */
+/** npm run build calistirir (eski .next cache temizlenir) */
 export async function npmBuild(): Promise<string> {
+  // Eski build cache'i temizle (Turbopack eski chunk'lari tekrar kullanmasin)
+  await run('rm', ['-rf', '.next']);
   const { stdout, stderr } = await run('npm', ['run', 'build']);
   return stdout || stderr || 'Build tamamlandi';
 }
