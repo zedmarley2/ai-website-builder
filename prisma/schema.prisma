@@ -353,3 +353,44 @@ model SiteSettings {
   @@index([group])
   @@index([key])
 }
+
+// ---------------------------------------------------------------------------
+// Auto Update System
+// ---------------------------------------------------------------------------
+
+enum UpdateStatus {
+  IN_PROGRESS
+  SUCCESS
+  FAILED
+}
+
+model UpdateLog {
+  id          String       @id @default(uuid())
+  version     String
+  commitHash  String
+  prevHash    String?
+  branch      String       @default("main")
+  status      UpdateStatus @default(IN_PROGRESS)
+  startedAt   DateTime     @default(now())
+  completedAt DateTime?
+  duration    Int?
+  steps       Json?
+  error       String?      @db.Text
+  triggeredBy String?
+
+  @@index([status])
+  @@index([startedAt])
+}
+
+model Backup {
+  id         String   @id @default(uuid())
+  path       String
+  dbPath     String
+  version    String
+  commitHash String
+  sizeBytes  Int      @default(0)
+  note       String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}

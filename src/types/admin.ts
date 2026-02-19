@@ -102,6 +102,26 @@ export const createQuoteNoteSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
+// Auto Update Schemas
+// ---------------------------------------------------------------------------
+
+export const updateCheckSchema = z.object({
+  repoUrl: z.string().url('Geçerli bir GitHub URL giriniz'),
+  branch: z.string().min(1, 'Branch seçimi zorunludur').max(100),
+});
+
+export const updateExecuteSchema = z.object({
+  repoUrl: z.string().url('Geçerli bir GitHub URL giriniz'),
+  branch: z.string().min(1, 'Branch seçimi zorunludur').max(100),
+  password: z.string().min(1, 'Şifre zorunludur'),
+});
+
+export const rollbackSchema = z.object({
+  backupId: z.string().uuid('Geçersiz yedek ID'),
+  password: z.string().min(1, 'Şifre zorunludur'),
+});
+
+// ---------------------------------------------------------------------------
 // Inferred Types
 // ---------------------------------------------------------------------------
 
@@ -114,3 +134,6 @@ export type ContactFormInput = z.infer<typeof contactFormSchema>;
 export type CreateQuoteInput = z.infer<typeof createQuoteSchema>;
 export type UpdateQuoteInput = z.infer<typeof updateQuoteSchema>;
 export type CreateQuoteNoteInput = z.infer<typeof createQuoteNoteSchema>;
+export type UpdateCheckInput = z.infer<typeof updateCheckSchema>;
+export type UpdateExecuteInput = z.infer<typeof updateExecuteSchema>;
+export type RollbackInput = z.infer<typeof rollbackSchema>;

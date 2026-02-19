@@ -45,6 +45,7 @@ const BREADCRUMB_MAP: Record<string, string> = {
   '/admin/musteriler': 'Müşteriler',
   '/admin/medya': 'Medya',
   '/admin/ayarlar': 'Ayarlar',
+  '/admin/guncelleme': 'Güncelleme',
 };
 
 function buildBreadcrumbs(pathname: string): { label: string; href: string }[] {

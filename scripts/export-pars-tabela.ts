@@ -196,6 +196,9 @@ NEXTAUTH_URL=http://localhost:3000
 
 # Domain (optional)
 ROOT_DOMAIN=localhost:3000
+
+# Auto Update
+GITHUB_REPO_URL=https://github.com/zedmarley2/pars-tabela
 `;
 
 const SETUP_SH = `#!/bin/bash
@@ -226,6 +229,9 @@ npx prisma db push
 # Seed data
 echo "Seeding database..."
 npm run seed
+
+# Create backups directory
+mkdir -p .backups
 
 echo ""
 echo "=== Setup complete! ==="
@@ -393,6 +399,7 @@ npm run dev
 - **/admin/medya** — Medya Kutuphanesi (yukleme, yonetim)
 - **/admin/sayfalar/anasayfa** — Anasayfa Icerik Duzenleyici (hero, hizmetler, hakkimizda, iletisim)
 - **/admin/ayarlar** — Site Ayarlari (genel, iletisim, sosyal, SEO, gorunum, site kimligi)
+- **/admin/guncelleme** — Otomatik Guncelleme (GitHub'dan cek, yedekle, geri yukle)
 
 ## Features
 
@@ -427,6 +434,13 @@ npm run dev
 - Toggle between dark and light themes
 - Persisted in localStorage
 - All components support both modes
+
+### Auto Update System
+- Pull updates from GitHub with real-time progress
+- Automatic file and database backup before updates
+- Rollback to any previous backup
+- Full update history with step-by-step details
+- Password confirmation for security
 
 ### Performance
 - Optimized font loading (next/font)
@@ -531,6 +545,7 @@ async function main() {
       ['src/lib/auth.ts', 'src/lib/auth.ts'],
       ['src/lib/admin-auth.ts', 'src/lib/admin-auth.ts'],
       ['src/lib/settings.ts', 'src/lib/settings.ts'],
+      ['src/lib/update-utils.ts', 'src/lib/update-utils.ts'],
       // Types
       ['src/types/admin.ts', 'src/types/admin.ts'],
       // Seed script
