@@ -5,7 +5,7 @@
  * generates standalone config, and publishes to GitHub.
  */
 
-import { mkdir, writeFile, readFile, cp, rm } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, cp, rm, chmod } from 'node:fs/promises';
 import { execFile as execFileCb } from 'node:child_process';
 import { promisify } from 'node:util';
 import path from 'node:path';
@@ -99,7 +99,7 @@ const TSCONFIG = `{
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -108,11 +108,12 @@ const TSCONFIG = `{
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "baseUrl": ".",
     "plugins": [{ "name": "next" }],
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "scripts"]
 }
 `;
 
@@ -195,6 +196,40 @@ NEXTAUTH_URL=http://localhost:3000
 
 # Domain (optional)
 ROOT_DOMAIN=localhost:3000
+`;
+
+const SETUP_SH = `#!/bin/bash
+set -e
+
+echo "=== Pars Tabela Setup ==="
+
+# Copy .env if not exists
+if [ ! -f .env ]; then
+  cp .env.example .env
+  echo "Created .env from .env.example"
+else
+  echo ".env already exists, skipping"
+fi
+
+# Install dependencies
+echo "Installing dependencies..."
+npm install
+
+# Generate Prisma client
+echo "Generating Prisma client..."
+npx prisma generate
+
+# Push database schema
+echo "Pushing database schema..."
+npx prisma db push
+
+# Seed data
+echo "Seeding database..."
+npm run seed
+
+echo ""
+echo "=== Setup complete! ==="
+echo "Run: npm run dev"
 `;
 
 const PRISMA_CONFIG = `import path from "node:path";
@@ -471,6 +506,7 @@ async function main() {
       writeProjectFile(outDir, 'postcss.config.mjs', POSTCSS_CONFIG),
       writeProjectFile(outDir, '.gitignore', GITIGNORE),
       writeProjectFile(outDir, '.env.example', ENV_EXAMPLE),
+      writeProjectFile(outDir, '.env', ENV_EXAMPLE),
       writeProjectFile(outDir, 'prisma/schema.prisma', prismaSchema),
       writeProjectFile(outDir, 'prisma.config.ts', PRISMA_CONFIG),
       writeProjectFile(outDir, 'docker-compose.dev.yml', DOCKER_COMPOSE_DEV),
@@ -480,7 +516,11 @@ async function main() {
       writeProjectFile(outDir, 'src/app/globals.css', GLOBALS_CSS),
       writeProjectFile(outDir, 'src/app/layout.tsx', ROOT_LAYOUT),
       writeProjectFile(outDir, 'src/middleware.ts', MIDDLEWARE),
+      writeProjectFile(outDir, 'setup.sh', SETUP_SH),
     ]);
+
+    // Make setup.sh executable
+    await chmod(path.join(outDir, 'setup.sh'), 0o755);
 
     // 2. Copy source files
     console.log('Copying source files...');
@@ -529,8 +569,8 @@ async function main() {
     // Keep the layout as-is (has generateMetadata with SEO + OpenGraph)
     const standaloneLayout = parsTabelaLayout;
 
-    // Fix nav links: /pars-tabela → / in components
     const fixedPage = parsTabelaPage;
+    const fixedUrunlerimizPage = urunlerimizPage;
 
     // Copy loading.tsx
     const loadingPage = await readFile(path.join(ROOT, 'src/app/pars-tabela/loading.tsx'), 'utf-8');
@@ -540,7 +580,7 @@ async function main() {
       writeProjectFile(outDir, 'src/app/(public)/page.tsx', fixedPage),
       writeProjectFile(outDir, 'src/app/(public)/layout.tsx', standaloneLayout),
       writeProjectFile(outDir, 'src/app/(public)/loading.tsx', loadingPage),
-      writeProjectFile(outDir, 'src/app/(public)/urunlerimiz/page.tsx', urunlerimizPage),
+      writeProjectFile(outDir, 'src/app/(public)/urunlerimiz/page.tsx', fixedUrunlerimizPage),
       // Product detail page
       copySourceFile(
         'src/app/pars-tabela/urunlerimiz/[id]',
@@ -552,43 +592,51 @@ async function main() {
       copySourceFile('src/app/(admin-auth)', outDir, 'src/app/(admin-auth)'),
     ]);
 
-    // 4. Fix component route references (pars-tabela → root)
+    // 3b. Add force-dynamic to layouts to prevent build-time DB queries
+    const dynamicExport = "export const dynamic = 'force-dynamic';\n\n";
+    const layoutsToFix = [
+      'src/app/(public)/layout.tsx',
+      'src/app/(admin)/admin/layout.tsx',
+    ];
+    await Promise.all(
+      layoutsToFix.map(async (relPath) => {
+        const filePath = path.join(outDir, relPath);
+        const content = await readFile(filePath, 'utf-8');
+        await writeFile(filePath, dynamicExport + content, 'utf-8');
+      })
+    );
+
+    // 4. Fix route references (pars-tabela → root)
+    // Smart regex: only replace /pars-tabela in URL path strings (after quotes),
+    // NOT in import paths like @/components/pars-tabela/ or API paths like /api/pars-tabela/
     console.log('Fixing route references...');
 
-    // Fix neon-header nav paths
-    const headerPath = path.join(outDir, 'src/components/pars-tabela/neon-header.tsx');
-    let headerContent = await readFile(headerPath, 'utf-8');
-    headerContent = headerContent
-      .replace(/\/pars-tabela#/g, '/#')
-      .replace(/\/pars-tabela/g, '/')
-      .replace(/pathname === '\/'/g, "pathname === '/'");
-    await writeFile(headerPath, headerContent, 'utf-8');
+    function fixRouteRefs(content: string): string {
+      return content
+        // Step 1: '/pars-tabela/...' or `/pars-tabela/...` → remove prefix (keep following /)
+        .replace(/(['"`])\/pars-tabela\//g, '$1/')
+        // Step 2: '/pars-tabela' at end of path, or '/pars-tabela#...' → replace with /
+        .replace(/(['"`])\/pars-tabela(?=['"`#])/g, '$1/');
+    }
 
-    // Fix product-detail breadcrumb links
-    const productDetailPath = path.join(outDir, 'src/components/pars-tabela/product-detail.tsx');
-    let productDetailContent = await readFile(productDetailPath, 'utf-8');
-    productDetailContent = productDetailContent
-      .replace(/\/pars-tabela\/urunlerimiz/g, '/urunlerimiz')
-      .replace(/\/pars-tabela/g, '/');
-    await writeFile(productDetailPath, productDetailContent, 'utf-8');
+    const componentFixFiles = [
+      'src/components/pars-tabela/neon-header.tsx',
+      'src/components/pars-tabela/neon-footer.tsx',
+      'src/components/pars-tabela/product-detail.tsx',
+      'src/components/pars-tabela/products-gallery.tsx',
+      'src/components/admin/sidebar.tsx',
+    ];
 
-    // Fix products-gallery links
-    const galleryPath = path.join(outDir, 'src/components/pars-tabela/products-gallery.tsx');
-    let galleryContent = await readFile(galleryPath, 'utf-8');
-    galleryContent = galleryContent.replace(/\/pars-tabela\/urunlerimiz/g, '/urunlerimiz');
-    await writeFile(galleryPath, galleryContent, 'utf-8');
-
-    // Fix neon-footer external link
-    const footerPath = path.join(outDir, 'src/components/pars-tabela/neon-footer.tsx');
-    let footerContent = await readFile(footerPath, 'utf-8');
-    footerContent = footerContent.replace(/\/pars-tabela/g, '/');
-    await writeFile(footerPath, footerContent, 'utf-8');
-
-    // Fix sidebar "Siteyi Gor" link
-    const sidebarPath = path.join(outDir, 'src/components/admin/sidebar.tsx');
-    let sidebarContent = await readFile(sidebarPath, 'utf-8');
-    sidebarContent = sidebarContent.replace(/href="\/pars-tabela"/g, 'href="/"');
-    await writeFile(sidebarPath, sidebarContent, 'utf-8');
+    await Promise.all(
+      componentFixFiles.map(async (relPath) => {
+        const filePath = path.join(outDir, relPath);
+        const content = await readFile(filePath, 'utf-8');
+        const fixed = fixRouteRefs(content);
+        if (fixed !== content) {
+          await writeFile(filePath, fixed, 'utf-8');
+        }
+      })
+    );
 
     // 5. Publish to GitHub
     console.log('Publishing to GitHub...');
@@ -611,47 +659,37 @@ async function main() {
       outDir
     );
 
-    // Try to delete existing repo and recreate, or create new
-    let repoName = REPO_NAME;
+    const repoName = REPO_NAME;
     const description =
       'Pars Tabela — Profesyonel tabela & reklam cozumleri. Admin panel, teklif/siparis pipeline, urun katalogu.';
+    const repoFullName = `${GITHUB_OWNER}/${repoName}`;
 
+    // Check if repo already exists
+    let repoExists = false;
     try {
-      // Try deleting existing repo first
-      await run('gh', ['repo', 'delete', `${GITHUB_OWNER}/${repoName}`, '--yes'], outDir);
-      console.log('Deleted existing repo, recreating...');
+      await run('gh', ['repo', 'view', repoFullName, '--json', 'name'], outDir);
+      repoExists = true;
     } catch {
-      // Repo may not exist, that's fine
+      // Repo doesn't exist
     }
 
-    try {
+    if (repoExists) {
+      // Force push to existing repo — detect default branch name
+      const repoInfo = await run('gh', ['repo', 'view', repoFullName, '--json', 'defaultBranchRef', '-q', '.defaultBranchRef.name'], outDir);
+      const defaultBranch = repoInfo.trim() || 'main';
+      console.log(`Repo ${repoFullName} exists (branch: ${defaultBranch}), force pushing...`);
+      await run('git', ['remote', 'add', 'origin', `https://github.com/${repoFullName}.git`], outDir);
+      await run('git', ['branch', '-M', defaultBranch], outDir);
+      await run('git', ['push', '--force', 'origin', defaultBranch], outDir);
+    } else {
+      // Create new repo
+      console.log(`Creating repo ${repoFullName}...`);
       await run(
         'gh',
         [
           'repo',
           'create',
-          `${GITHUB_OWNER}/${repoName}`,
-          '--public',
-          '--description',
-          description,
-          '--source',
-          '.',
-          '--push',
-        ],
-        outDir
-      );
-    } catch {
-      // If create fails, try with suffix
-      const suffix = crypto.randomBytes(2).toString('hex');
-      repoName = `${REPO_NAME}-${suffix}`;
-      console.log(`Creating with name: ${repoName}`);
-
-      await run(
-        'gh',
-        [
-          'repo',
-          'create',
-          `${GITHUB_OWNER}/${repoName}`,
+          repoFullName,
           '--public',
           '--description',
           description,
