@@ -260,10 +260,10 @@ export async function gitFetchAndReset(
   return stdout.trim();
 }
 
-/** npm install calistirir */
+/** npm ci calistirir (temiz kurulum) */
 export async function npmInstall(): Promise<string> {
-  const { stdout, stderr } = await run('npm', ['install']);
-  return stdout || stderr || 'npm install tamamlandi';
+  const { stdout, stderr } = await run('npm', ['ci']);
+  return stdout || stderr || 'npm ci tamamlandi';
 }
 
 /** Prisma generate ve db push calistirir */
@@ -326,7 +326,7 @@ export async function restoreBackup(
   }
 
   // Bagimlilik ve build adimlari
-  await run('npm', ['install']);
+  await run('npm', ['ci']);
   await run('npx', ['prisma', 'generate']);
   await run('npm', ['run', 'build']);
 
