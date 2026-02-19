@@ -131,8 +131,10 @@ const ROLLBACK_STEPS: StepResult[] = [
 // Helpers
 // ---------------------------------------------------------------------------
 
-function formatDateTime(dateStr: string): string {
+function formatDateTime(dateStr: string | null | undefined): string {
+  if (!dateStr) return '-';
   const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '-';
   return date.toLocaleDateString('tr-TR', {
     day: '2-digit',
     month: '2-digit',
@@ -568,13 +570,14 @@ export default function AdminUpdatePage() {
     try {
       const res = await fetch('/api/admin/update/status');
       if (res.ok) {
-        const data = await res.json();
-        setStatus(data);
-        if (data.repoUrl && !repoUrl) {
-          setRepoUrl(data.repoUrl);
+        const json = await res.json();
+        const statusData = json?.data ?? json;
+        setStatus(statusData);
+        if (statusData?.repoUrl && !repoUrl) {
+          setRepoUrl(statusData.repoUrl);
         }
-        if (data.branch) {
-          setBranch(data.branch);
+        if (statusData?.branch) {
+          setBranch(statusData.branch);
         }
       } else {
         toast.error('Durum bilgisi yuklenirken hata olustu');
@@ -657,11 +660,11 @@ export default function AdminUpdatePage() {
         body: JSON.stringify({ repoUrl, branch }),
       });
       if (res.ok) {
-        const data = await res.json();
-        setCheckResult(data);
+        const json = await res.json();
+        setCheckResult(json?.data ?? json);
       } else {
-        const data = await res.json();
-        toast.error(data.error || 'Guncelleme kontrolu basarisiz');
+        const data = await res.json().catch(() => ({}));
+        toast.error(data?.error || 'Guncelleme kontrolu basarisiz');
       }
     } catch {
       toast.error('Guncelleme kontrolu sirasinda hata olustu');
@@ -1004,7 +1007,7 @@ function StatusTab({
   return (
     <div className="space-y-6">
       {/* Update in progress warning */}
-      {status.isUpdateInProgress && (
+      {status?.isUpdateInProgress && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1029,7 +1032,7 @@ function StatusTab({
                 Versiyon
               </p>
               <p className="mt-0.5 text-lg font-bold text-gray-900 dark:text-white">
-                {status.version}
+                {status?.version ?? '1.0.0'}
               </p>
             </div>
           </div>
@@ -1045,7 +1048,7 @@ function StatusTab({
                 Commit
               </p>
               <p className="mt-0.5 font-mono text-lg font-bold text-gray-900 dark:text-white">
-                {status.commitHash.slice(0, 8)}
+                {status?.commitHash?.slice(0, 8) ?? 'Bilinmiyor'}
               </p>
             </div>
           </div>
@@ -1061,7 +1064,7 @@ function StatusTab({
                 Branch
               </p>
               <p className="mt-0.5 text-lg font-bold text-gray-900 dark:text-white">
-                {status.branch}
+                {status?.branch ?? 'main'}
               </p>
             </div>
           </div>
@@ -1077,7 +1080,7 @@ function StatusTab({
                 Sunucu Suresi
               </p>
               <p className="mt-0.5 text-lg font-bold text-gray-900 dark:text-white">
-                {formatUptime(status.uptime)}
+                {formatUptime(status?.uptime ?? 0)}
               </p>
             </div>
           </div>
@@ -1091,15 +1094,15 @@ function StatusTab({
           Son Guncelleme
         </h3>
         <div className="mt-3">
-          {status.lastUpdate ? (
+          {status?.lastUpdate ? (
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-5 w-5 text-green-500" />
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  Versiyon {status.lastUpdate.version}
+                  Versiyon {status.lastUpdate?.version ?? '-'}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {formatDateTime(status.lastUpdate.completedAt)}
+                  {formatDateTime(status.lastUpdate?.completedAt)}
                 </p>
               </div>
             </div>
@@ -1121,11 +1124,11 @@ function StatusTab({
           Sistem Gereksinimleri
         </h3>
         <div className="mt-4 space-y-3">
-          <RequirementRow label="git" available={status.hasGit} />
-          <RequirementRow label="pm2" available={status.hasPm2} />
-          <RequirementRow label="pg_dump" available={status.hasPgDump} />
+          <RequirementRow label="git" available={status?.hasGit ?? false} />
+          <RequirementRow label="pm2" available={status?.hasPm2 ?? false} />
+          <RequirementRow label="pg_dump" available={status?.hasPgDump ?? false} />
           <div className="flex items-center gap-3">
-            {status.isGitRepo ? (
+            {status?.isGitRepo ? (
               <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />
             ) : (
               <XCircle className="h-5 w-5 text-red-500 dark:text-red-400" />
@@ -1135,12 +1138,12 @@ function StatusTab({
             </span>
             <span
               className={`ml-auto inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                status.isGitRepo
+                status?.isGitRepo
                   ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400'
                   : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
               }`}
             >
-              {status.isGitRepo ? 'Evet' : 'Hayir'}
+              {status?.isGitRepo ? 'Evet' : 'Hayir'}
             </span>
           </div>
         </div>
@@ -1336,7 +1339,7 @@ function UpdateTab({
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <span className="rounded bg-gray-200 px-1.5 py-0.5 font-mono text-xs text-gray-700 dark:bg-[#334155] dark:text-gray-300">
-                              {commit.hash.slice(0, 8)}
+                              {commit?.hash?.slice(0, 8) ?? '-'}
                             </span>
                             <span className="text-xs text-gray-500 dark:text-gray-400">
                               {commit.author}
@@ -1466,11 +1469,11 @@ function BackupsTab({
                     </td>
                     <td className="hidden whitespace-nowrap px-6 py-4 sm:table-cell">
                       <span className="rounded bg-gray-200 px-1.5 py-0.5 font-mono text-xs text-gray-700 dark:bg-[#334155] dark:text-gray-300">
-                        {backup.commitHash.slice(0, 8)}
+                        {backup?.commitHash?.slice(0, 8) ?? '-'}
                       </span>
                     </td>
                     <td className="hidden whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-400 md:table-cell">
-                      {formatBytes(backup.sizeBytes)}
+                      {formatBytes(backup?.sizeBytes ?? 0)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
                       {backup.exists ? (
@@ -1655,7 +1658,7 @@ function HistoryRow({
         </td>
         <td className="hidden whitespace-nowrap px-6 py-4 sm:table-cell">
           <span className="rounded bg-gray-200 px-1.5 py-0.5 font-mono text-xs text-gray-700 dark:bg-[#334155] dark:text-gray-300">
-            {log.commitHash.slice(0, 8)}
+            {log?.commitHash?.slice(0, 8) ?? '-'}
           </span>
         </td>
         <td className="whitespace-nowrap px-6 py-4">
@@ -1703,7 +1706,7 @@ function HistoryRow({
                     </div>
                   )}
 
-                  {log.steps && log.steps.length > 0 ? (
+                  {log?.steps && (log.steps?.length ?? 0) > 0 ? (
                     <div>
                       <h4 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">
                         Adimlar
@@ -1711,11 +1714,11 @@ function HistoryRow({
                       <div className="relative">
                         <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gray-200 dark:bg-[#334155]" />
                         <div className="space-y-0">
-                          {log.steps.map((step, idx) => (
+                          {log.steps?.map((step, idx) => (
                             <MiniStepItem
                               key={idx}
                               step={step}
-                              isLast={idx === log.steps!.length - 1}
+                              isLast={idx === (log.steps?.length ?? 0) - 1}
                             />
                           ))}
                         </div>
@@ -1735,7 +1738,7 @@ function HistoryRow({
                     {log.prevHash && (
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         <span className="font-medium">Onceki Commit:</span>{' '}
-                        <span className="font-mono">{log.prevHash.slice(0, 8)}</span>
+                        <span className="font-mono">{log.prevHash?.slice(0, 8) ?? '-'}</span>
                       </div>
                     )}
                     {log.completedAt && (
