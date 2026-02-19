@@ -22,6 +22,13 @@ const STATS: Stat[] = [
   { value: 500, suffix: '+', label: 'Mutlu Müşteri' },
 ];
 
+function getCounterSizeClass(charCount: number): string {
+  if (charCount <= 3) return 'text-4xl sm:text-5xl';
+  if (charCount <= 5) return 'text-3xl sm:text-4xl';
+  if (charCount <= 7) return 'text-2xl sm:text-3xl';
+  return 'text-xl sm:text-2xl';
+}
+
 function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
@@ -46,14 +53,16 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
     return () => clearInterval(timer);
   }, [isInView, value]);
 
+  const formatted = count.toLocaleString('tr-TR') + suffix;
+  const finalFormatted = value.toLocaleString('tr-TR') + suffix;
+  const sizeClass = getCounterSizeClass(finalFormatted.length);
+
   return (
     <span
       ref={ref}
-      className="whitespace-nowrap font-extrabold text-[#1a365d] dark:text-[#d4a843]"
-      style={{ fontSize: 'clamp(1.5rem, 4vw, 3rem)' }}
+      className={`block whitespace-nowrap font-extrabold text-[#1a365d] dark:text-[#d4a843] ${sizeClass}`}
     >
-      {count.toLocaleString('tr-TR')}
-      {suffix}
+      {formatted}
     </span>
   );
 }
@@ -119,18 +128,16 @@ export function AboutSection({ content }: { content?: AboutContent | null }) {
             </div>
 
             {/* Right: stats grid */}
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-4 sm:gap-6">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
               {stats.map((stat) => (
                 <motion.div
                   key={stat.label}
                   variants={itemVariants}
-                  className="rounded-xl border border-[#e2e8f0] bg-white p-4 text-center shadow-sm sm:p-6 dark:border-[#334155] dark:bg-[#1e293b]"
+                  className="flex min-w-[120px] flex-1 flex-col items-center rounded-xl border border-[#e2e8f0] bg-white p-4 text-center shadow-sm sm:p-6 dark:border-[#334155] dark:bg-[#1e293b]"
                 >
-                  <div className="mb-2 flex justify-center">
-                    <div className="h-1 w-8 rounded-full bg-[#d4a843]" />
-                  </div>
+                  <div className="mb-2 h-1 w-8 rounded-full bg-[#d4a843]" />
                   <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-                  <p className="mt-3 text-base font-medium text-gray-500 dark:text-gray-400">
+                  <p className="mt-3 text-sm font-medium text-gray-500 sm:text-base dark:text-gray-400">
                     {stat.label}
                   </p>
                 </motion.div>
