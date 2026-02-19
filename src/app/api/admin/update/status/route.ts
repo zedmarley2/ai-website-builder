@@ -24,28 +24,33 @@ export async function GET() {
   }
 
   try {
-    // Eski kilitlenme kayitlarini temizle
-    await checkAndCleanStaleLocks();
+    // Eski kilitlenme kayitlarini temizle (non-fatal)
+    try { await checkAndCleanStaleLocks(); } catch { /* ignore */ }
 
-    // Paralel olarak tum bilgileri topla
-    const [
-      versionInfo,
-      hasGit,
-      hasPm2,
-      hasPgDump,
-      lastUpdate,
-    ] = await Promise.all([
-      getCurrentVersion(),
-      checkGitInstalled(),
-      checkPm2Installed(),
-      checkPgDumpInstalled(),
-      prisma.updateLog.findFirst({
+    // Her bilgiyi bagimsiz try-catch ile topla
+    let versionInfo = { version: '1.0.0', commitHash: 'unknown', commitDate: new Date().toISOString(), branch: 'main' };
+    try { versionInfo = await getCurrentVersion(); } catch { /* varsayilan degerler */ }
+
+    let hasGit = false;
+    try { hasGit = await checkGitInstalled(); } catch { /* false */ }
+
+    let hasPm2 = false;
+    try { hasPm2 = await checkPm2Installed(); } catch { /* false */ }
+
+    let hasPgDump = false;
+    try { hasPgDump = await checkPgDumpInstalled(); } catch { /* false */ }
+
+    let lastUpdate = null;
+    try {
+      lastUpdate = await prisma.updateLog.findFirst({
         orderBy: { startedAt: 'desc' },
-      }),
-    ]);
+      });
+    } catch { /* DB hatasi - null dondur */ }
+
+    let gitRepo = false;
+    try { gitRepo = isGitRepo(); } catch { /* false */ }
 
     const uptime = getServerUptime();
-    const gitRepo = isGitRepo();
     const isUpdateInProgress = isLocked();
     const repoUrl = process.env.GITHUB_REPO_URL ?? '';
 

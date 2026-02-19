@@ -1282,7 +1282,7 @@ function UpdateTab({
           animate={{ opacity: 1, y: 0 }}
           className="rounded-xl border border-gray-200 bg-white p-6 dark:border-[#334155] dark:bg-[#1e293b]"
         >
-          {checkResult.ahead === 0 ? (
+          {(checkResult?.ahead ?? 0) === 0 ? (
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-6 w-6 text-green-500" />
               <div>
@@ -1301,7 +1301,7 @@ function UpdateTab({
                   <Download className="h-6 w-6 text-blue-500" />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {checkResult.ahead} yeni guncelleme mevcut
+                      {checkResult?.ahead ?? 0} yeni guncelleme mevcut
                     </p>
                     <span className="mt-1 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-500/20 dark:text-blue-400">
                       Guncelleme Mevcut
@@ -1321,13 +1321,13 @@ function UpdateTab({
               </div>
 
               {/* Commit list */}
-              {checkResult.commits.length > 0 && (
+              {(checkResult?.commits?.length ?? 0) > 0 && (
                 <div className="mt-6">
                   <h4 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">
                     Degisiklikler
                   </h4>
                   <div className="space-y-2">
-                    {checkResult.commits.map((commit, idx) => (
+                    {checkResult?.commits?.map((commit, idx) => (
                       <div
                         key={idx}
                         className="flex items-start gap-3 rounded-lg border border-gray-100 bg-gray-50/50 px-4 py-3 dark:border-[#334155]/50 dark:bg-[#0f172a]/50"
