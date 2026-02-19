@@ -260,15 +260,18 @@ export async function gitFetchAndReset(
   return stdout.trim();
 }
 
-/** Temiz npm kurulumu: ci (lockfile varsa) veya install (yoksa) */
+/** Temiz npm kurulumu (devDependencies dahil) */
 export async function npmInstall(): Promise<string> {
   // node_modules sil ve temiz kurulum yap
-  const rmResult = await run('rm', ['-rf', 'node_modules']);
+  await run('rm', ['-rf', 'node_modules']);
 
-  // package-lock.json varsa npm ci, yoksa npm install
+  // NODE_ENV=production ise npm install devDeps atlar.
+  // next start NODE_ENV=production set eder, bu yuzden acikca development olarak calistir.
+  const installEnv = { ...process.env, NODE_ENV: 'development' as const };
+
   const hasLockfile = existsSync(join(PROJECT_ROOT, 'package-lock.json'));
   const cmd = hasLockfile ? 'ci' : 'install';
-  const { stdout, stderr } = await run('npm', [cmd]);
+  const { stdout, stderr } = await run('npm', [cmd], { env: installEnv });
   return stdout || stderr || `npm ${cmd} tamamlandi`;
 }
 
@@ -333,11 +336,13 @@ export async function restoreBackup(
     }
   }
 
-  // Bagimlilik ve build adimlari (temiz kurulum)
+  // Bagimlilik ve build adimlari (temiz kurulum, devDeps dahil)
   await run('rm', ['-rf', 'node_modules']);
+  const installEnv = { ...process.env, NODE_ENV: 'development' as const };
   const hasLockfile = existsSync(join(PROJECT_ROOT, 'package-lock.json'));
-  await run('npm', [hasLockfile ? 'ci' : 'install']);
+  await run('npm', [hasLockfile ? 'ci' : 'install'], { env: installEnv });
   await run('npx', ['prisma', 'generate']);
+  await run('rm', ['-rf', '.next']);
   await run('npm', ['run', 'build']);
 
   // PM2 yeniden baslatma
