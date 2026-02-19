@@ -164,6 +164,16 @@ body {
   position: relative;
   z-index: 9999;
 }
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 `;
 
 const GITIGNORE = `node_modules/
@@ -246,7 +256,10 @@ CMD ["node", "server.js"]
 `;
 
 const ROOT_LAYOUT = `import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
+
+const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-inter' });
 
 export const metadata: Metadata = {
   title: 'Pars Tabela | Profesyonel Tabela & Reklam Cozumleri',
@@ -260,7 +273,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" suppressHydrationWarning>
+    <html lang="tr" className={inter.variable} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -343,7 +356,8 @@ npm run dev
 - **/admin/siparisler** — Iletisim Talepleri (durum takibi)
 - **/admin/musteriler** — Musteri Listesi (toplu gorunum)
 - **/admin/medya** — Medya Kutuphanesi (yukleme, yonetim)
-- **/admin/ayarlar** — Site Ayarlari (genel, iletisim, sosyal, SEO, gorunum)
+- **/admin/sayfalar/anasayfa** — Anasayfa Icerik Duzenleyici (hero, hizmetler, hakkimizda, iletisim)
+- **/admin/ayarlar** — Site Ayarlari (genel, iletisim, sosyal, SEO, gorunum, site kimligi)
 
 ## Features
 
@@ -362,10 +376,28 @@ npm run dev
 - Product and inquiry statistics
 - Recent activity feed
 
+### Homepage Content Management
+- Edit hero section (title, subtitle, CTA)
+- Add/edit/reorder service cards
+- Edit about section text and stats
+- Edit contact section and map URL
+- All changes reflect on public site immediately
+
+### Site Identity
+- Custom logo upload (light/dark mode)
+- Favicon, site name, tagline
+- Dynamic header/footer branding
+
 ### Dark/Light Mode
 - Toggle between dark and light themes
 - Persisted in localStorage
 - All components support both modes
+
+### Performance
+- Optimized font loading (next/font)
+- prefers-reduced-motion accessibility support
+- SEO meta tags and OpenGraph
+- Route-level loading states
 
 ## Tech Stack
 
@@ -494,18 +526,20 @@ async function main() {
       'utf-8'
     );
 
-    // Fix the layout: remove generateMetadata export (root layout handles it)
-    const standaloneLayout = parsTabelaLayout
-      .replace(/import \{ getSetting \} from.*\n/, '')
-      .replace(/export async function generateMetadata[\s\S]*?^}/m, '');
+    // Keep the layout as-is (has generateMetadata with SEO + OpenGraph)
+    const standaloneLayout = parsTabelaLayout;
 
     // Fix nav links: /pars-tabela → / in components
     const fixedPage = parsTabelaPage;
+
+    // Copy loading.tsx
+    const loadingPage = await readFile(path.join(ROOT, 'src/app/pars-tabela/loading.tsx'), 'utf-8');
 
     await Promise.all([
       // Main public pages at root
       writeProjectFile(outDir, 'src/app/(public)/page.tsx', fixedPage),
       writeProjectFile(outDir, 'src/app/(public)/layout.tsx', standaloneLayout),
+      writeProjectFile(outDir, 'src/app/(public)/loading.tsx', loadingPage),
       writeProjectFile(outDir, 'src/app/(public)/urunlerimiz/page.tsx', urunlerimizPage),
       // Product detail page
       copySourceFile(
