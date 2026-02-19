@@ -260,10 +260,16 @@ export async function gitFetchAndReset(
   return stdout.trim();
 }
 
-/** npm ci calistirir (temiz kurulum) */
+/** Temiz npm kurulumu: ci (lockfile varsa) veya install (yoksa) */
 export async function npmInstall(): Promise<string> {
-  const { stdout, stderr } = await run('npm', ['ci']);
-  return stdout || stderr || 'npm ci tamamlandi';
+  // node_modules sil ve temiz kurulum yap
+  const rmResult = await run('rm', ['-rf', 'node_modules']);
+
+  // package-lock.json varsa npm ci, yoksa npm install
+  const hasLockfile = existsSync(join(PROJECT_ROOT, 'package-lock.json'));
+  const cmd = hasLockfile ? 'ci' : 'install';
+  const { stdout, stderr } = await run('npm', [cmd]);
+  return stdout || stderr || `npm ${cmd} tamamlandi`;
 }
 
 /** Prisma generate ve db push calistirir */
@@ -325,8 +331,10 @@ export async function restoreBackup(
     }
   }
 
-  // Bagimlilik ve build adimlari
-  await run('npm', ['ci']);
+  // Bagimlilik ve build adimlari (temiz kurulum)
+  await run('rm', ['-rf', 'node_modules']);
+  const hasLockfile = existsSync(join(PROJECT_ROOT, 'package-lock.json'));
+  await run('npm', [hasLockfile ? 'ci' : 'install']);
   await run('npx', ['prisma', 'generate']);
   await run('npm', ['run', 'build']);
 
