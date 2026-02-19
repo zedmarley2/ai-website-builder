@@ -1,8 +1,17 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
+
 -- CreateEnum
 CREATE TYPE "DomainStatus" AS ENUM ('PENDING', 'VERIFIED', 'FAILED');
 
 -- CreateEnum
 CREATE TYPE "InquiryStatus" AS ENUM ('NEW', 'IN_REVIEW', 'REPLIED', 'CLOSED');
+
+-- CreateEnum
+CREATE TYPE "QuoteStatus" AS ENUM ('NEW', 'QUOTE_PREPARED', 'QUOTE_SENT', 'APPROVED', 'IN_PRODUCTION', 'READY_FOR_DELIVERY', 'DELIVERED', 'CANCELLED');
+
+-- CreateEnum
+CREATE TYPE "UpdateStatus" AS ENUM ('IN_PROGRESS', 'SUCCESS', 'FAILED');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -169,6 +178,83 @@ CREATE TABLE "Inquiry" (
 );
 
 -- CreateTable
+CREATE TABLE "Quote" (
+    "id" TEXT NOT NULL,
+    "referenceNumber" TEXT NOT NULL,
+    "status" "QuoteStatus" NOT NULL DEFAULT 'NEW',
+    "customerName" TEXT NOT NULL,
+    "customerEmail" TEXT NOT NULL,
+    "customerPhone" TEXT,
+    "customerCompany" TEXT,
+    "productType" TEXT,
+    "description" TEXT NOT NULL,
+    "dimensions" TEXT,
+    "referenceImageUrl" TEXT,
+    "estimatedDays" INTEGER,
+    "validUntil" TIMESTAMP(3),
+    "subtotal" DECIMAL(12,2),
+    "taxRate" DECIMAL(5,2) NOT NULL DEFAULT 18,
+    "taxAmount" DECIMAL(12,2),
+    "total" DECIMAL(12,2),
+    "deliveryDate" TIMESTAMP(3),
+    "cancellationReason" TEXT,
+    "customerNotes" TEXT,
+    "productId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Quote_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "QuoteItem" (
+    "id" TEXT NOT NULL,
+    "quoteId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL DEFAULT 1,
+    "unitPrice" DECIMAL(12,2) NOT NULL,
+    "subtotal" DECIMAL(12,2) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "QuoteItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "QuoteStatusHistory" (
+    "id" TEXT NOT NULL,
+    "quoteId" TEXT NOT NULL,
+    "fromStatus" "QuoteStatus",
+    "toStatus" "QuoteStatus" NOT NULL,
+    "note" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "QuoteStatusHistory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "QuoteNote" (
+    "id" TEXT NOT NULL,
+    "quoteId" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "QuoteNote_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Notification" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "type" TEXT NOT NULL DEFAULT 'info',
+    "read" BOOLEAN NOT NULL DEFAULT false,
+    "link" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "SiteSettings" (
     "id" TEXT NOT NULL,
     "key" TEXT NOT NULL,
@@ -178,6 +264,38 @@ CREATE TABLE "SiteSettings" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "SiteSettings_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UpdateLog" (
+    "id" TEXT NOT NULL,
+    "version" TEXT NOT NULL,
+    "commitHash" TEXT NOT NULL,
+    "prevHash" TEXT,
+    "branch" TEXT NOT NULL DEFAULT 'main',
+    "status" "UpdateStatus" NOT NULL DEFAULT 'IN_PROGRESS',
+    "startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "completedAt" TIMESTAMP(3),
+    "duration" INTEGER,
+    "steps" JSONB,
+    "error" TEXT,
+    "triggeredBy" TEXT,
+
+    CONSTRAINT "UpdateLog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Backup" (
+    "id" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
+    "dbPath" TEXT NOT NULL,
+    "version" TEXT NOT NULL,
+    "commitHash" TEXT NOT NULL,
+    "sizeBytes" INTEGER NOT NULL DEFAULT 0,
+    "note" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Backup_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -262,6 +380,39 @@ CREATE INDEX "Inquiry_status_idx" ON "Inquiry"("status");
 CREATE INDEX "Inquiry_createdAt_idx" ON "Inquiry"("createdAt");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Quote_referenceNumber_key" ON "Quote"("referenceNumber");
+
+-- CreateIndex
+CREATE INDEX "Quote_status_idx" ON "Quote"("status");
+
+-- CreateIndex
+CREATE INDEX "Quote_referenceNumber_idx" ON "Quote"("referenceNumber");
+
+-- CreateIndex
+CREATE INDEX "Quote_customerEmail_idx" ON "Quote"("customerEmail");
+
+-- CreateIndex
+CREATE INDEX "Quote_createdAt_idx" ON "Quote"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "QuoteItem_quoteId_idx" ON "QuoteItem"("quoteId");
+
+-- CreateIndex
+CREATE INDEX "QuoteStatusHistory_quoteId_idx" ON "QuoteStatusHistory"("quoteId");
+
+-- CreateIndex
+CREATE INDEX "QuoteStatusHistory_createdAt_idx" ON "QuoteStatusHistory"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "QuoteNote_quoteId_idx" ON "QuoteNote"("quoteId");
+
+-- CreateIndex
+CREATE INDEX "Notification_read_idx" ON "Notification"("read");
+
+-- CreateIndex
+CREATE INDEX "Notification_createdAt_idx" ON "Notification"("createdAt");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "SiteSettings_key_key" ON "SiteSettings"("key");
 
 -- CreateIndex
@@ -269,6 +420,15 @@ CREATE INDEX "SiteSettings_group_idx" ON "SiteSettings"("group");
 
 -- CreateIndex
 CREATE INDEX "SiteSettings_key_idx" ON "SiteSettings"("key");
+
+-- CreateIndex
+CREATE INDEX "UpdateLog_status_idx" ON "UpdateLog"("status");
+
+-- CreateIndex
+CREATE INDEX "UpdateLog_startedAt_idx" ON "UpdateLog"("startedAt");
+
+-- CreateIndex
+CREATE INDEX "Backup_createdAt_idx" ON "Backup"("createdAt");
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -296,3 +456,16 @@ ALTER TABLE "ProductImage" ADD CONSTRAINT "ProductImage_productId_fkey" FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE "Inquiry" ADD CONSTRAINT "Inquiry_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Quote" ADD CONSTRAINT "Quote_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "QuoteItem" ADD CONSTRAINT "QuoteItem_quoteId_fkey" FOREIGN KEY ("quoteId") REFERENCES "Quote"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "QuoteStatusHistory" ADD CONSTRAINT "QuoteStatusHistory_quoteId_fkey" FOREIGN KEY ("quoteId") REFERENCES "Quote"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "QuoteNote" ADD CONSTRAINT "QuoteNote_quoteId_fkey" FOREIGN KEY ("quoteId") REFERENCES "Quote"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
