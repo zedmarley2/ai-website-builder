@@ -2,6 +2,14 @@
 
 import { motion } from 'framer-motion';
 
+interface HeroContent {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  ctaText?: string;
+  ctaLink?: string;
+}
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -15,7 +23,14 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' as const } },
 };
 
-export function NeonHero() {
+export function NeonHero({ content }: { content?: HeroContent | null }) {
+  const title = content?.title || 'Profesyonel Tabela & Reklam';
+  const highlight = 'Çözümleri';
+  const subtitle = content?.subtitle || 'Işığınızla Fark Yaratın';
+  const description = content?.description || '15 yılı aşkın deneyim ile markanızı en iyi şekilde yansıtan tabela çözümleri sunuyoruz';
+  const ctaText = content?.ctaText || 'Hizmetlerimizi Keşfedin';
+  const ctaLink = content?.ctaLink || '#hizmetlerimiz';
+
   return (
     <section
       id="hero"
@@ -45,34 +60,35 @@ export function NeonHero() {
           className="mb-6 text-5xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl"
           variants={itemVariants}
         >
-          Profesyonel Tabela &amp; Reklam{' '}
-          <span className="text-[#d4a843]">Çözümleri</span>
+          {title}{' '}
+          <span className="text-[#d4a843]">{highlight}</span>
         </motion.h1>
 
         <motion.p
           className="mb-4 text-2xl font-semibold text-[#d4a843] sm:text-3xl"
           variants={itemVariants}
         >
-          Işığınızla Fark Yaratın
+          {subtitle}
         </motion.p>
 
         <motion.p
           className="mx-auto mb-10 max-w-2xl text-lg text-gray-300 sm:text-xl"
           variants={itemVariants}
         >
-          15 yılı aşkın deneyim ile markanızı en iyi şekilde yansıtan tabela çözümleri sunuyoruz
+          {description}
         </motion.p>
 
         <motion.div variants={itemVariants}>
           <a
-            href="#hizmetlerimiz"
+            href={ctaLink}
             onClick={(e) => {
               e.preventDefault();
-              document.querySelector('#hizmetlerimiz')?.scrollIntoView({ behavior: 'smooth' });
+              const target = ctaLink.startsWith('#') ? ctaLink : `#${ctaLink.split('#')[1] || 'hizmetlerimiz'}`;
+              document.querySelector(target)?.scrollIntoView({ behavior: 'smooth' });
             }}
             className="inline-block rounded-full bg-[#d4a843] px-8 py-3.5 text-lg font-semibold text-[#1a365d] transition-all duration-300 hover:scale-105 hover:bg-[#e0b854] hover:shadow-lg"
           >
-            Hizmetlerimizi Keşfedin
+            {ctaText}
           </a>
         </motion.div>
       </motion.div>

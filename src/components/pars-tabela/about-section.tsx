@@ -9,6 +9,13 @@ interface Stat {
   label: string;
 }
 
+interface AboutContent {
+  text1?: string;
+  text2?: string;
+  text3?: string;
+  stats?: Stat[];
+}
+
 const STATS: Stat[] = [
   { value: 15, suffix: '+', label: 'Yıllık Deneyim' },
   { value: 3000, suffix: '+', label: 'Tamamlanan Proje' },
@@ -63,7 +70,12 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
-export function AboutSection() {
+export function AboutSection({ content }: { content?: AboutContent | null }) {
+  const text1 = content?.text1 || 'Pars Tabela olarak 15 y\u0131l\u0131 a\u015fk\u0131n deneyimimizle T\u00fcrkiye\'nin \u00f6nde gelen tabela \u00fcreticilerinden biriyiz. Modern teknoloji ve geleneksel ustal\u0131\u011f\u0131 bir araya getirerek, markan\u0131z\u0131 en iyi \u015fekilde yans\u0131tan tabela \u00e7\u00f6z\u00fcmleri sunuyoruz.';
+  const text2 = content?.text2 || 'Neon tabeladan LED ayd\u0131nlatmaya, kutu harften elektronik tabelalara kadar geni\u015f \u00fcr\u00fcn yelpazemizle her sekt\u00f6re \u00f6zel \u00e7\u00f6z\u00fcmler \u00fcretiyoruz.';
+  const text3 = content?.text3 || 'M\u00fc\u015fteri memnuniyetini her zaman \u00f6n planda tutarak, kaliteli malzeme ve profesyonel i\u015f\u00e7ilik ile uzun \u00f6m\u00fcrl\u00fc \u00fcr\u00fcnler sunmay\u0131 hedefliyoruz.';
+  const stats = content?.stats?.length ? content.stats : STATS;
+
   return (
     <section
       id="hakkimizda"
@@ -89,29 +101,25 @@ export function AboutSection() {
                 className="text-lg leading-relaxed text-gray-600 dark:text-gray-300"
                 variants={itemVariants}
               >
-                Pars Tabela olarak 15 yılı aşkın deneyimimizle Türkiye&apos;nin önde gelen tabela
-                üreticilerinden biriyiz. Modern teknoloji ve geleneksel ustalığı bir araya getirerek,
-                markanızı en iyi şekilde yansıtan tabela çözümleri sunuyoruz.
+                {text1}
               </motion.p>
               <motion.p
                 className="text-lg leading-relaxed text-gray-600 dark:text-gray-300"
                 variants={itemVariants}
               >
-                Neon tabeladan LED aydınlatmaya, kutu harften elektronik tabelalara kadar geniş ürün
-                yelpazemizle her sektöre özel çözümler üretiyoruz.
+                {text2}
               </motion.p>
               <motion.p
                 className="text-lg leading-relaxed text-gray-600 dark:text-gray-300"
                 variants={itemVariants}
               >
-                Müşteri memnuniyetini her zaman ön planda tutarak, kaliteli malzeme ve
-                profesyonel işçilik ile uzun ömürlü ürünler sunmayı hedefliyoruz.
+                {text3}
               </motion.p>
             </div>
 
             {/* Right: stats grid */}
             <div className="grid gap-6 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-              {STATS.map((stat) => (
+              {stats.map((stat) => (
                 <motion.div
                   key={stat.label}
                   variants={itemVariants}

@@ -19,6 +19,7 @@ interface NeonFooterProps {
   contact?: SettingsMap;
   social?: SettingsMap;
   general?: SettingsMap;
+  identity?: SettingsMap;
 }
 
 function InstagramIcon() {
@@ -45,13 +46,15 @@ function XIcon() {
   );
 }
 
-export function NeonFooter({ contact, social, general }: NeonFooterProps) {
+export function NeonFooter({ contact, social, general, identity }: NeonFooterProps) {
   const address = contact?.address || 'Organize Sanayi Bölgesi, 12. Cadde No:8, Isparta';
   const phone = contact?.phone || '+90 (246) 555 0123';
   const email = contact?.email || 'info@parstabela.com';
   const footerText = general?.footer_text || '© 2024 Pars Tabela. Tüm hakları saklıdır.';
-  const siteName = general?.site_name || 'Pars Tabela';
+  const siteName = identity?.site_name || general?.site_name || 'Pars Tabela';
   const siteDesc = general?.site_description || 'Profesyonel tabela, LED aydınlatma ve reklam çözümleri ile markanızı en iyi şekilde yansıtıyoruz.';
+  const logoLight = identity?.logo_light;
+  const logoDark = identity?.logo_dark;
 
   const socialLinks = [
     { label: 'Instagram', href: social?.instagram || '#', icon: <InstagramIcon /> },
@@ -65,7 +68,19 @@ export function NeonFooter({ contact, social, general }: NeonFooterProps) {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Column 1: Logo & description */}
           <div>
-            <h3 className="text-2xl font-bold text-white">{siteName}</h3>
+            {logoLight || logoDark ? (
+              <>
+                {/* Show light logo (visible in dark mode footer) */}
+                {logoDark && (
+                  <img src={logoDark} alt={siteName} className="h-10 w-auto" />
+                )}
+                {!logoDark && logoLight && (
+                  <img src={logoLight} alt={siteName} className="h-10 w-auto" />
+                )}
+              </>
+            ) : (
+              <h3 className="text-2xl font-bold text-white">{siteName}</h3>
+            )}
             <p className="mt-4 text-sm leading-relaxed text-gray-400">{siteDesc}</p>
             {socialLinks.length > 0 && (
               <div className="mt-6 flex gap-4">

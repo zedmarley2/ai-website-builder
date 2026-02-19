@@ -72,13 +72,20 @@ function buildContactInfo(contact?: SettingsMap) {
 const inputClasses =
   'w-full rounded-lg border border-[#e2e8f0] bg-white px-4 py-3 text-sm text-[#1f2937] placeholder-gray-400 transition-all focus:border-[#1a365d] focus:outline-none focus:ring-1 focus:ring-[#1a365d] dark:border-[#334155] dark:bg-[#1e293b] dark:text-gray-100 dark:placeholder-gray-500 dark:focus:border-[#d4a843] dark:focus:ring-[#d4a843]';
 
-interface ContactSectionProps {
-  contact?: SettingsMap;
+interface ContactContent {
+  title?: string;
+  subtitle?: string;
+  mapUrl?: string;
 }
 
-export function ContactSection({ contact }: ContactSectionProps) {
+interface ContactSectionProps {
+  contact?: SettingsMap;
+  content?: ContactContent | null;
+}
+
+export function ContactSection({ contact, content }: ContactSectionProps) {
   const CONTACT_INFO = buildContactInfo(contact);
-  const mapsUrl = contact?.maps_url || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d99942.0!2d30.28!3d37.76!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14c5b0a7f5e9!2sIsparta!5e0!3m2!1str!2str!4v1';
+  const mapsUrl = content?.mapUrl || contact?.maps_url || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d99942.0!2d30.28!3d37.76!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14c5b0a7f5e9!2sIsparta!5e0!3m2!1str!2str!4v1';
   const { toast } = useToast();
   const [form, setForm] = useState<FormData>(initialForm);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -120,10 +127,10 @@ export function ContactSection({ contact }: ContactSectionProps) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-16 text-center">
           <h2 className="text-4xl font-bold text-[#1a365d] sm:text-5xl dark:text-white">
-            İletişim
+            {content?.title || 'İletişim'}
           </h2>
           <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-            Projeleriniz için bizimle iletişime geçin
+            {content?.subtitle || 'Projeleriniz için bizimle iletişime geçin'}
           </p>
         </div>
 

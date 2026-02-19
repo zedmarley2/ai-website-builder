@@ -32,17 +32,24 @@ export default async function ParsTabelaPage() {
     price: p.price ? p.price.toString() : null,
   }));
 
+  // Parse homepage content from settings
+  const heroContent = settings.homepage?.homepage_hero ? JSON.parse(settings.homepage.homepage_hero) : null;
+  const servicesContent = settings.homepage?.homepage_services ? JSON.parse(settings.homepage.homepage_services) : null;
+  const aboutContent = settings.homepage?.homepage_about ? JSON.parse(settings.homepage.homepage_about) : null;
+  const contactContent = settings.homepage?.homepage_contact ? JSON.parse(settings.homepage.homepage_contact) : null;
+  const identity = settings.identity || {};
+
   return (
     <>
-      <NeonHeader />
+      <NeonHeader siteName={identity.site_name} logoLight={identity.logo_light} logoDark={identity.logo_dark} />
       <main>
-        <NeonHero />
-        <ServicesSection />
+        <NeonHero content={heroContent} />
+        <ServicesSection content={servicesContent} />
         <ProductsGallery products={serializedProducts} categories={categories} />
-        <AboutSection />
-        <ContactSection contact={settings.contact} />
+        <AboutSection content={aboutContent} />
+        <ContactSection contact={settings.contact} content={contactContent} />
       </main>
-      <NeonFooter contact={settings.contact} social={settings.social} general={settings.general} />
+      <NeonFooter contact={settings.contact} social={settings.social} general={settings.general} identity={identity} />
       <ScrollToTop />
     </>
   );

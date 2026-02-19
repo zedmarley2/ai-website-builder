@@ -2,10 +2,56 @@
 
 import { motion } from 'framer-motion';
 
+interface ServiceContentItem {
+  id?: string;
+  icon?: string;
+  title: string;
+  description: string;
+}
+
+interface ServicesContentProp {
+  items?: ServiceContentItem[];
+}
+
 interface Service {
   icon: React.ReactNode;
   title: string;
   description: string;
+}
+
+function getIconSvg(iconName?: string): React.ReactNode {
+  switch (iconName) {
+    case 'lightbulb':
+      return (
+        <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+        </svg>
+      );
+    case 'zap':
+      return (
+        <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+        </svg>
+      );
+    case 'monitor':
+      return (
+        <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
+        </svg>
+      );
+    case 'type':
+      return (
+        <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+        </svg>
+      );
+    default:
+      return (
+        <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+        </svg>
+      );
+  }
 }
 
 const SERVICES: Service[] = [
@@ -60,7 +106,15 @@ const cardVariants = {
   }),
 };
 
-export function ServicesSection() {
+export function ServicesSection({ content }: { content?: ServicesContentProp | null }) {
+  const services: Service[] = content?.items?.length
+    ? content.items.map((item) => ({
+        icon: getIconSvg(item.icon),
+        title: item.title,
+        description: item.description,
+      }))
+    : SERVICES;
+
   return (
     <section
       id="hizmetlerimiz"
@@ -77,7 +131,7 @@ export function ServicesSection() {
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {SERVICES.map((service, i) => (
+          {services.map((service, i) => (
             <motion.div
               key={service.title}
               custom={i}

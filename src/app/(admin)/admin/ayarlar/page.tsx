@@ -8,11 +8,12 @@ import {
   Share2,
   Search as SearchIcon,
   Palette,
+  Image as ImageIcon2,
   Save,
   Loader2,
 } from 'lucide-react';
 
-type SettingsGroup = 'general' | 'contact' | 'social' | 'seo' | 'appearance';
+type SettingsGroup = 'general' | 'contact' | 'social' | 'seo' | 'appearance' | 'identity';
 
 interface TabConfig {
   key: SettingsGroup;
@@ -26,6 +27,7 @@ const TABS: TabConfig[] = [
   { key: 'social', label: 'Sosyal Medya', icon: Share2 },
   { key: 'seo', label: 'SEO', icon: SearchIcon },
   { key: 'appearance', label: 'Görünüm', icon: Palette },
+  { key: 'identity', label: 'Site Kimliği', icon: ImageIcon2 },
 ];
 
 interface FieldConfig {
@@ -216,6 +218,42 @@ const FIELD_CONFIGS: Record<SettingsGroup, FieldConfig[]> = {
         { value: 'solid', label: 'Düz' },
         { value: 'glass', label: 'Cam Efekti' },
       ],
+    },
+  ],
+  identity: [
+    {
+      key: 'site_name',
+      label: 'Site Adı',
+      type: 'text',
+      placeholder: 'Pars Tabela',
+      defaultValue: 'Pars Tabela',
+    },
+    {
+      key: 'site_tagline',
+      label: 'Slogan',
+      type: 'text',
+      placeholder: 'Profesyonel Tabela & Reklam Çözümleri',
+    },
+    {
+      key: 'logo_light',
+      label: 'Logo (Açık Tema)',
+      type: 'text',
+      placeholder: '/uploads/logo-light.png',
+      helper: 'Açık temada kullanılacak logo URL\'si. Medya sayfasından yükleyip URL\'yi yapıştırın.',
+    },
+    {
+      key: 'logo_dark',
+      label: 'Logo (Koyu Tema)',
+      type: 'text',
+      placeholder: '/uploads/logo-dark.png',
+      helper: 'Koyu temada kullanılacak logo URL\'si.',
+    },
+    {
+      key: 'favicon_url',
+      label: 'Favicon',
+      type: 'text',
+      placeholder: '/favicon.ico',
+      helper: 'Favicon dosyasının URL\'si (.ico veya .png)',
     },
   ],
 };

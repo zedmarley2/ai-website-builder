@@ -9,6 +9,7 @@ import {
   Package,
   Tags,
   FileText,
+  FileEdit,
   MessageSquare,
   Users,
   ImageIcon,
@@ -32,6 +33,7 @@ interface AdminSidebarProps {
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { label: 'Teklifler', href: '/admin/teklifler', icon: FileText },
+  { label: 'Sayfa Yönetimi', href: '/admin/sayfalar', icon: FileEdit },
   { label: 'Ürünler', href: '/admin/urunler', icon: Package },
   { label: 'Kategoriler', href: '/admin/kategoriler', icon: Tags },
   { label: 'Siparişler', href: '/admin/siparisler', icon: MessageSquare },
