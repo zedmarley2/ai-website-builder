@@ -49,7 +49,7 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
   return (
     <span
       ref={ref}
-      className="text-5xl font-extrabold text-[#1a365d] sm:text-6xl dark:text-[#d4a843]"
+      className="whitespace-nowrap text-3xl font-extrabold text-[#1a365d] sm:text-4xl lg:text-5xl dark:text-[#d4a843]"
     >
       {count.toLocaleString('tr-TR')}
       {suffix}
@@ -118,12 +118,12 @@ export function AboutSection({ content }: { content?: AboutContent | null }) {
             </div>
 
             {/* Right: stats grid */}
-            <div className="grid gap-6 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-1 xl:grid-cols-3">
               {stats.map((stat) => (
                 <motion.div
                   key={stat.label}
                   variants={itemVariants}
-                  className="rounded-xl border border-[#e2e8f0] bg-white p-8 text-center shadow-sm dark:border-[#334155] dark:bg-[#1e293b]"
+                  className="min-w-0 rounded-xl border border-[#e2e8f0] bg-white p-6 text-center shadow-sm dark:border-[#334155] dark:bg-[#1e293b]"
                 >
                   <div className="mb-2 flex justify-center">
                     <div className="h-1 w-8 rounded-full bg-[#d4a843]" />
