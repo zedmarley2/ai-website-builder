@@ -20,14 +20,22 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10)));
     const skip = (page - 1) * limit;
 
-    const [logs, total] = await Promise.all([
-      prisma.updateLog.findMany({
-        orderBy: { startedAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.updateLog.count(),
-    ]);
+    let logs: Awaited<ReturnType<typeof prisma.updateLog.findMany>> = [];
+    let total = 0;
+
+    try {
+      [logs, total] = await Promise.all([
+        prisma.updateLog.findMany({
+          orderBy: { startedAt: 'desc' },
+          skip,
+          take: limit,
+        }),
+        prisma.updateLog.count(),
+      ]);
+    } catch (dbErr) {
+      console.error('UpdateLog tablosu sorgulanamadi (tablo mevcut olmayabilir):', dbErr);
+      // Tablo yoksa veya DB hatasi varsa bos dizi dondur
+    }
 
     return NextResponse.json({
       data: logs,
@@ -37,9 +45,11 @@ export async function GET(request: NextRequest) {
     });
   } catch (err) {
     console.error('Guncelleme kayitlari sorgulama hatasi:', err);
-    return NextResponse.json(
-      { error: 'Sunucu hatasi' },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      data: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+    });
   }
 }
