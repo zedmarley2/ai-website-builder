@@ -14,6 +14,7 @@ import {
   Users,
   ImageIcon,
   Settings,
+  Monitor,
   ExternalLink,
   ChevronsLeft,
   ChevronsRight,
@@ -40,6 +41,7 @@ const NAV_ITEMS = [
   { label: 'Müşteriler', href: '/admin/musteriler', icon: Users },
   { label: 'Medya', href: '/admin/medya', icon: ImageIcon },
   { label: 'Ayarlar', href: '/admin/ayarlar', icon: Settings },
+  { label: 'Sistem', href: '/admin/sistem', icon: Monitor },
 ];
 
 export function AdminSidebar({
